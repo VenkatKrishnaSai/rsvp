@@ -1,15 +1,8 @@
-import { useState, useEffect } from "react";
-import {
-    Box,
-    Button,
-    Card,
-    CardContent,
-    TextField,
-    Typography,
-    Stack
-} from "@mui/material";
-import * as XLSX from "xlsx";
+import { useState } from "react";
+import axios from "axios";
+import { Box, Button, Card, CardContent, TextField, Typography, Stack } from "@mui/material";
 
+// Constants
 const EVENTS = [
     "Mehendi Ceremony",
     "Sangeet Night",
@@ -17,6 +10,9 @@ const EVENTS = [
     "Reception Dinner",
     "Post-Wedding Brunch"
 ];
+
+const SPREADSHEET_ID = "1KKN9k02yL5cYVx98H76JOiVhma_EELjkbWPqoVp0Fmk"; // Your Google Sheet ID
+const API_KEY = "AIzaSyDhM1p9WUCy-GjLKRphL6x8wsvFkjJnvT0"; // Your Google API Key
 
 export default function WeddingRSVPApp() {
     const [currentPage, setCurrentPage] = useState(0);
@@ -29,33 +25,8 @@ export default function WeddingRSVPApp() {
         }, {})
     );
     const [submitted, setSubmitted] = useState(false);
-    const [allUserData, setAllUserData] = useState([]);
 
     const currentEvent = EVENTS[currentPage];
-
-    useEffect(() => {
-        const currentGuests = rsvpData[currentEvent].guests;
-
-        if (rsvpData[currentEvent].attending && currentGuests.length === 0) {
-            for (let i = currentPage - 1; i >= 0; i--) {
-                const prevEvent = EVENTS[i];
-                const prevData = rsvpData[prevEvent];
-                if (prevData.attending && prevData.guests.length > 0) {
-                    setGuestCount(prevData.guests.length);
-                    setRsvpData(prev => ({
-                        ...prev,
-                        [currentEvent]: {
-                            ...prev[currentEvent],
-                            guests: [...prevData.guests]
-                        }
-                    }));
-                    return;
-                }
-            }
-        } else {
-            setGuestCount(currentGuests.length);
-        }
-    }, [currentPage, currentEvent, rsvpData]);
 
     const setAttendance = (attending) => {
         setRsvpData(prev => ({
@@ -94,50 +65,41 @@ export default function WeddingRSVPApp() {
         }));
     };
 
-    const exportToExcel = () => {
-        const workbook = XLSX.utils.book_new();
+    const handleRSVPSubmit = async () => {
+        try {
+            // Prepare the data to send to Google Sheets
+            const data = [
+                [name, rsvpData[currentEvent].attending ? "Yes" : "No", ...rsvpData[currentEvent].guests],
+            ];
 
-        allUserData.forEach((entry, index) => {
-            const rows = [];
-            rows.push({ User: entry.name });
-            EVENTS.forEach(event => {
-                const data = entry.rsvpData[event];
-                rows.push({ Event: event, Attending: data.attending ? "Yes" : "No" });
-                if (data.attending && data.guests.length > 0) {
-                    data.guests.forEach((guest, i) => {
-                        rows.push({ Event: `${event} - Guest ${i + 1}`, Name: guest });
-                    });
-                }
-            });
-            const sheet = XLSX.utils.json_to_sheet(rows);
-            XLSX.utils.book_append_sheet(workbook, sheet, `RSVP ${entry.name || index + 1}`);
-        });
+            // Specify the event's sheet name
+            const sheetName = currentEvent.replace(/\s+/g, '_'); // Replace spaces with underscores (to be valid for Google Sheets)
 
-        XLSX.writeFile(workbook, `All_Wedding_RSVPs.xlsx`);
-    };
+            const updateRequestBody = {
+                range: `${sheetName}!A2`, // Starting point in your Google Sheet for this event
+                values: data,
+            };
 
-    const nextPage = () => {
-        if (currentPage < EVENTS.length - 1) {
-            setCurrentPage(prev => prev + 1);
-            setGuestCount(0);
-        } else {
-            setSubmitted(true);
-            setAllUserData(prev => [...prev, { name, rsvpData }]);
+            // Send data to Google Sheets API using axios
+            const response = await axios.post(
+                `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A2:append?valueInputOption=RAW&key=${API_KEY}`,
+                updateRequestBody
+            );
+
+            console.log("Data submitted successfully", response);
+            alert("RSVP submitted successfully!");
+
+            // Move to the next page or mark as submitted
+            if (currentPage < EVENTS.length - 1) {
+                setCurrentPage(prev => prev + 1);
+                setGuestCount(0);
+            } else {
+                setSubmitted(true);
+            }
+        } catch (error) {
+            console.error("Error submitting RSVP:", error);
+            alert("There was an error submitting your RSVP. Please try again.");
         }
-    };
-
-    const startAnotherRsvp = () => {
-        // Reset all states to start a new RSVP entry
-        setCurrentPage(0);
-        setName("");
-        setGuestCount(0);
-        setRsvpData(
-            EVENTS.reduce((acc, event) => {
-                acc[event] = { attending: null, guests: [] };
-                return acc;
-            }, {})
-        );
-        setSubmitted(false);
     };
 
     if (submitted) {
@@ -149,12 +111,6 @@ export default function WeddingRSVPApp() {
                 <Typography variant="body1">
                     Your RSVP has been recorded for all events.
                 </Typography>
-                <Button variant="outlined" sx={{ mt: 3 }} onClick={exportToExcel}>
-                    Export All RSVPs to Excel
-                </Button>
-                <Button variant="contained" sx={{ mt: 2 }} onClick={startAnotherRsvp}>
-                    Start Another RSVP
-                </Button>
             </Box>
         );
     }
@@ -226,7 +182,7 @@ export default function WeddingRSVPApp() {
                     <Button
                         variant="contained"
                         fullWidth
-                        onClick={nextPage}
+                        onClick={handleRSVPSubmit}
                         sx={{ mt: 2 }}
                     >
                         {currentPage === EVENTS.length - 1 ? "Submit RSVP" : "Next"}
