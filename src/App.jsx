@@ -91,6 +91,7 @@ export default function WeddingRSVPApp() {
     };
 
     const handleAddGuest = () => {
+        // Add a new guest input field when "Add Guest" button is clicked
         setGuestCount(prevCount => prevCount + 1);
         setRsvpData(prev => ({
             ...prev,
@@ -102,6 +103,7 @@ export default function WeddingRSVPApp() {
     };
 
     const handleRemoveGuest = (index) => {
+        // Remove the guest from the list
         const updatedGuests = rsvpData[currentEvent].guests.filter((_, i) => i !== index);
         setGuestCount(updatedGuests.length);
         setRsvpData(prev => ({
@@ -192,7 +194,7 @@ export default function WeddingRSVPApp() {
                                     <TextField
                                         value={guest}
                                         onChange={(e) => handleGuestChange(index, e.target.value)}
-                                        placeholder={`Guest ${index + 1}`}
+                                        placeholder={`Guest ${index + 1} (New Guest)`}
                                         fullWidth
                                         margin="dense"
                                     />
