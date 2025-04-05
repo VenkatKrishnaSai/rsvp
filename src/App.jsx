@@ -1,6 +1,8 @@
 import { useState } from "react";
-import axios from "axios";
 import { Box, Button, Card, CardContent, TextField, Typography, Stack } from "@mui/material";
+import { db } from "./firebaseConfig";
+
+import { collection, addDoc } from "firebase/firestore";
 
 // Constants
 const EVENTS = [
@@ -10,9 +12,6 @@ const EVENTS = [
     "Reception Dinner",
     "Post-Wedding Brunch"
 ];
-
-const SPREADSHEET_ID = "1KKN9k02yL5cYVx98H76JOiVhma_EELjkbWPqoVp0Fmk"; // Your Google Sheet ID
-const API_KEY = "AIzaSyDhM1p9WUCy-GjLKRphL6x8wsvFkjJnvT0"; // Your Google API Key
 
 export default function WeddingRSVPApp() {
     const [currentPage, setCurrentPage] = useState(0);
@@ -67,29 +66,19 @@ export default function WeddingRSVPApp() {
 
     const handleRSVPSubmit = async () => {
         try {
-            // Prepare the data to send to Google Sheets
-            const data = [
-                [name, rsvpData[currentEvent].attending ? "Yes" : "No", ...rsvpData[currentEvent].guests],
-            ];
-
-            // Specify the event's sheet name
-            const sheetName = currentEvent.replace(/\s+/g, '_'); // Replace spaces with underscores (to be valid for Google Sheets)
-
-            const updateRequestBody = {
-                range: `${sheetName}!A2`, // Starting point in your Google Sheet for this event
-                values: data,
+            // Prepare the RSVP data for Firestore
+            const data = {
+                name,
+                event: currentEvent,
+                attending: rsvpData[currentEvent].attending,
+                guests: rsvpData[currentEvent].guests,
             };
 
-            // Send data to Google Sheets API using axios
-            const response = await axios.post(
-                `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}!A2:append?valueInputOption=RAW&key=${API_KEY}`,
-                updateRequestBody
-            );
+            // Add the RSVP data to the Firestore database
+            await addDoc(collection(db, "rsvps"), data);
 
-            console.log("Data submitted successfully", response);
             alert("RSVP submitted successfully!");
 
-            // Move to the next page or mark as submitted
             if (currentPage < EVENTS.length - 1) {
                 setCurrentPage(prev => prev + 1);
                 setGuestCount(0);
@@ -101,6 +90,7 @@ export default function WeddingRSVPApp() {
             alert("There was an error submitting your RSVP. Please try again.");
         }
     };
+
 
     if (submitted) {
         return (
