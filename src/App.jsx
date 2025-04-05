@@ -32,10 +32,9 @@ export default function WeddingRSVPApp() {
     const currentEvent = EVENTS[currentPage];
 
     useEffect(() => {
-        // Prefill guest names from previous event if available
-        if (rsvpData[currentEvent].guests.length === 0 && currentPage > 0) {
+        if (rsvpData[currentEvent]?.guests.length === 0 && currentPage > 0) {
             const previousEvent = EVENTS[currentPage - 1];
-            const previousGuests = rsvpData[previousEvent].guests || [];
+            const previousGuests = rsvpData[previousEvent]?.guests || [];
             setGuestCount(previousGuests.length);
             setRsvpData(prev => ({
                 ...prev,
@@ -45,7 +44,7 @@ export default function WeddingRSVPApp() {
                 }
             }));
         }
-    }, [currentPage]);
+    }, [currentPage, currentEvent, rsvpData]);
 
     const setAttendance = (attending) => {
         setRsvpData(prev => ({
@@ -87,7 +86,7 @@ export default function WeddingRSVPApp() {
     const nextPage = () => {
         if (currentPage < EVENTS.length - 1) {
             setCurrentPage(prev => prev + 1);
-            setGuestCount(0); // Reset guest count (will be refilled if guests exist)
+            setGuestCount(0);
         } else {
             setSubmitted(true);
             console.log("Final RSVP:", { name, rsvpData });
