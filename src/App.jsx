@@ -18,6 +18,8 @@ const EVENTS = [
     "Post-Wedding Brunch"
 ];
 
+const allSubmissions = [];
+
 export default function WeddingRSVPApp() {
     const [currentPage, setCurrentPage] = useState(0);
     const [name, setName] = useState("");
@@ -29,6 +31,7 @@ export default function WeddingRSVPApp() {
         }, {})
     );
     const [submitted, setSubmitted] = useState(false);
+    const [allUserData, setAllUserData] = useState([]);
 
     const currentEvent = EVENTS[currentPage];
 
@@ -96,34 +99,23 @@ export default function WeddingRSVPApp() {
     const exportToExcel = () => {
         const workbook = XLSX.utils.book_new();
 
-        EVENTS.forEach(event => {
-            const data = rsvpData[event];
-            const sheetData = [
-                ["Event", event],
-                ["Attending", data.attending ? "Yes" : "No"],
-                [],
-                ["Guest Number", "Guest Name"]
-            ];
-
-            if (data.attending && data.guests.length > 0) {
-                data.guests.forEach((guest, index) => {
-                    sheetData.push([`Guest ${index + 1}`, guest]);
-                });
-            }
-
-            const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
-
-            // Apply some styling tweaks (like bold headers)
-            const boldCell = { font: { bold: true } };
-            worksheet["A1"].s = boldCell;
-            worksheet["A2"].s = boldCell;
-            worksheet["A4"].s = boldCell;
-            worksheet["B4"].s = boldCell;
-
-            XLSX.utils.book_append_sheet(workbook, worksheet, event);
+        allUserData.forEach((entry, index) => {
+            const rows = [];
+            rows.push({ User: entry.name });
+            EVENTS.forEach(event => {
+                const data = entry.rsvpData[event];
+                rows.push({ Event: event, Attending: data.attending ? "Yes" : "No" });
+                if (data.attending && data.guests.length > 0) {
+                    data.guests.forEach((guest, i) => {
+                        rows.push({ Event: `${event} - Guest ${i + 1}`, Name: guest });
+                    });
+                }
+            });
+            const sheet = XLSX.utils.json_to_sheet(rows);
+            XLSX.utils.book_append_sheet(workbook, sheet, `RSVP ${entry.name || index + 1}`);
         });
 
-        XLSX.writeFile(workbook, `Wedding_RSVP_${name || "Guest"}.xlsx`);
+        XLSX.writeFile(workbook, `All_Wedding_RSVPs.xlsx`);
     };
 
     const nextPage = () => {
@@ -132,8 +124,22 @@ export default function WeddingRSVPApp() {
             setGuestCount(0);
         } else {
             setSubmitted(true);
-            console.log("Final RSVP:", { name, rsvpData });
+            setAllUserData(prev => [...prev, { name, rsvpData }]);
         }
+    };
+
+    const startAnotherRsvp = () => {
+        // Reset all states to start a new RSVP entry
+        setCurrentPage(0);
+        setName("");
+        setGuestCount(0);
+        setRsvpData(
+            EVENTS.reduce((acc, event) => {
+                acc[event] = { attending: null, guests: [] };
+                return acc;
+            }, {})
+        );
+        setSubmitted(false);
     };
 
     if (submitted) {
@@ -146,7 +152,10 @@ export default function WeddingRSVPApp() {
                     Your RSVP has been recorded for all events.
                 </Typography>
                 <Button variant="outlined" sx={{ mt: 3 }} onClick={exportToExcel}>
-                    Export to Excel
+                    Export All RSVPs to Excel
+                </Button>
+                <Button variant="contained" sx={{ mt: 2 }} onClick={startAnotherRsvp}>
+                    Start Another RSVP
                 </Button>
             </Box>
         );
