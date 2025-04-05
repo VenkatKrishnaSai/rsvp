@@ -49,7 +49,7 @@ export default function WeddingRSVPApp() {
                 }));
             }
         }
-    }, [currentPage, currentEvent, rsvpData]);
+    }, [currentPage, rsvpData]);
 
     const setAttendance = (attending) => {
         setRsvpData(prev => ({
@@ -65,12 +65,14 @@ export default function WeddingRSVPApp() {
     const handleGuestCountChange = (value) => {
         const count = parseInt(value, 10);
         setGuestCount(count);
+
+        // Update the guest list based on the new count
         if (rsvpData[currentEvent].attending) {
             setRsvpData(prev => ({
                 ...prev,
                 [currentEvent]: {
                     ...prev[currentEvent],
-                    guests: Array(count).fill("")
+                    guests: Array(count).fill("") // Reset guest names if the count changes
                 }
             }));
         }
@@ -79,6 +81,29 @@ export default function WeddingRSVPApp() {
     const handleGuestChange = (index, value) => {
         const updatedGuests = [...rsvpData[currentEvent].guests];
         updatedGuests[index] = value;
+        setRsvpData(prev => ({
+            ...prev,
+            [currentEvent]: {
+                ...prev[currentEvent],
+                guests: updatedGuests
+            }
+        }));
+    };
+
+    const handleAddGuest = () => {
+        setGuestCount(prevCount => prevCount + 1);
+        setRsvpData(prev => ({
+            ...prev,
+            [currentEvent]: {
+                ...prev[currentEvent],
+                guests: [...prev[currentEvent].guests, ""] // Add an empty guest field
+            }
+        }));
+    };
+
+    const handleRemoveGuest = (index) => {
+        const updatedGuests = rsvpData[currentEvent].guests.filter((_, i) => i !== index);
+        setGuestCount(updatedGuests.length);
         setRsvpData(prev => ({
             ...prev,
             [currentEvent]: {
@@ -163,15 +188,32 @@ export default function WeddingRSVPApp() {
                                 inputProps={{ min: 0 }}
                             />
                             {rsvpData[currentEvent].guests.map((guest, index) => (
-                                <TextField
-                                    key={index}
-                                    value={guest}
-                                    onChange={(e) => handleGuestChange(index, e.target.value)}
-                                    placeholder={`Guest ${index + 1}`}
-                                    fullWidth
-                                    margin="dense"
-                                />
+                                <Box key={index} mb={2}>
+                                    <TextField
+                                        value={guest}
+                                        onChange={(e) => handleGuestChange(index, e.target.value)}
+                                        placeholder={`Guest ${index + 1}`}
+                                        fullWidth
+                                        margin="dense"
+                                    />
+                                    <Button
+                                        variant="outlined"
+                                        color="error"
+                                        onClick={() => handleRemoveGuest(index)}
+                                        sx={{ mt: 1 }}
+                                    >
+                                        Remove
+                                    </Button>
+                                </Box>
                             ))}
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                onClick={handleAddGuest}
+                                sx={{ mt: 2 }}
+                            >
+                                Add Guest
+                            </Button>
                         </Box>
                     )}
 
