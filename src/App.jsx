@@ -20,7 +20,7 @@ const EVENTS = [
 export default function WeddingRSVPApp() {
     const [currentPage, setCurrentPage] = useState(0);
     const [name, setName] = useState("");
-    const [guests, setGuests] = useState([""]);
+    // const [guests, setGuests] = useState([""]);
     const [rsvpData, setRsvpData] = useState(
         EVENTS.reduce((acc, event) => {
             acc[event] = { attending: null, guests: [""] };
