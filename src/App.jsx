@@ -1,76 +1,150 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    TextField,
+    Typography
+} from "@mui/material";
 
 const EVENTS = [
-  "Mehendi Ceremony",
-  "Sangeet Night",
-  "Wedding Ceremony",
-  "Reception Dinner",
-  "Post-Wedding Brunch"
+    "Mehendi Ceremony",
+    "Sangeet Night",
+    "Wedding Ceremony",
+    "Reception Dinner",
+    "Post-Wedding Brunch"
 ];
 
 export default function WeddingRSVPApp() {
-  const [name, setName] = useState("");
-  const [responses, setResponses] = useState(
-      EVENTS.reduce((acc, event) => ({ ...acc, [event]: false }), {})
-  );
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleCheckboxChange = (eventName) => {
-    setResponses((prev) => ({ ...prev, [eventName]: !prev[eventName] }));
-  };
-
-  const handleSubmit = () => {
-    if (!name.trim()) return;
-    setSubmitted(true);
-    console.log("RSVP Submitted:", { name, responses });
-  };
-
-  if (submitted) {
-    return (
-        <div className="max-w-xl mx-auto p-6">
-          <h1 className="text-2xl font-bold mb-4">Thank you, {name}!</h1>
-          <p className="text-lg">Your RSVP has been recorded.</p>
-        </div>
+    const [currentPage, setCurrentPage] = useState(0);
+    const [name, setName] = useState("");
+    const [rsvpData, setRsvpData] = useState(
+        EVENTS.reduce((acc, event) => {
+            acc[event] = { attending: false, guests: [""] };
+            return acc;
+        }, {})
     );
-  }
+    const [submitted, setSubmitted] = useState(false);
 
-  return (
-      <div className="max-w-xl mx-auto p-6">
-        <Card className="p-6">
-          <CardContent>
-            <h1 className="text-2xl font-bold mb-4">Wedding RSVP</h1>
-            <div className="mb-4">
-              <Label htmlFor="name">Your Name</Label>
-              <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="mt-1"
-              />
-            </div>
-            <div className="mb-4">
-              <h2 className="font-semibold mb-2">Events you'll attend:</h2>
-              {EVENTS.map((event) => (
-                  <div key={event} className="flex items-center space-x-2 mb-2">
-                    <Checkbox
-                        id={event}
-                        checked={responses[event]}
-                        onCheckedChange={() => handleCheckboxChange(event)}
-                    />
-                    <Label htmlFor={event}>{event}</Label>
-                  </div>
-              ))}
-            </div>
-            <Button onClick={handleSubmit} className="w-full">
-              Submit RSVP
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-  );
+    const currentEvent = EVENTS[currentPage];
+
+    const handleToggleAttendance = () => {
+        setRsvpData(prev => ({
+            ...prev,
+            [currentEvent]: {
+                ...prev[currentEvent],
+                attending: !prev[currentEvent].attending
+            }
+        }));
+    };
+
+    const handleGuestChange = (index, value) => {
+        const updatedGuests = [...rsvpData[currentEvent].guests];
+        updatedGuests[index] = value;
+        setRsvpData(prev => ({
+            ...prev,
+            [currentEvent]: {
+                ...prev[currentEvent],
+                guests: updatedGuests
+            }
+        }));
+    };
+
+    const addGuestField = () => {
+        setRsvpData(prev => ({
+            ...prev,
+            [currentEvent]: {
+                ...prev[currentEvent],
+                guests: [...prev[currentEvent].guests, ""]
+            }
+        }));
+    };
+
+    const nextPage = () => {
+        if (currentPage < EVENTS.length - 1) {
+            setCurrentPage(prev => prev + 1);
+        } else {
+            setSubmitted(true);
+            console.log("Final RSVP:", { name, rsvpData });
+        }
+    };
+
+    if (submitted) {
+        return (
+            <Box maxWidth={600} mx="auto" p={3}>
+                <Typography variant="h4" gutterBottom>
+                    Thank you, {name}!
+                </Typography>
+                <Typography variant="body1">
+                    Your RSVP has been recorded for all events.
+                </Typography>
+            </Box>
+        );
+    }
+
+    return (
+        <Box maxWidth={600} mx="auto" p={3}>
+            <Card>
+                <CardContent>
+                    {currentPage === 0 && (
+                        <Box mb={4}>
+                            <TextField
+                                label="Your Name"
+                                fullWidth
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                margin="normal"
+                            />
+                        </Box>
+                    )}
+
+                    <Typography variant="h6" gutterBottom>
+                        {currentEvent}
+                    </Typography>
+
+                    <Box mb={3}>
+                        <Typography variant="subtitle1">Will you attend?</Typography>
+                        <Button
+                            variant={rsvpData[currentEvent].attending ? "contained" : "outlined"}
+                            onClick={handleToggleAttendance}
+                            sx={{ mt: 1, mb: 2 }}
+                        >
+                            {rsvpData[currentEvent].attending ? "Yes" : "No"}
+                        </Button>
+                    </Box>
+
+                    {rsvpData[currentEvent].attending && (
+                        <Box mb={3}>
+                            <Typography variant="subtitle1" gutterBottom>
+                                Guests You're Bringing
+                            </Typography>
+                            {rsvpData[currentEvent].guests.map((guest, index) => (
+                                <TextField
+                                    key={index}
+                                    value={guest}
+                                    onChange={(e) => handleGuestChange(index, e.target.value)}
+                                    placeholder={`Guest ${index + 1}`}
+                                    fullWidth
+                                    margin="dense"
+                                />
+                            ))}
+                            <Button variant="outlined" onClick={addGuestField} sx={{ mt: 1 }}>
+                                Add Another Guest
+                            </Button>
+                        </Box>
+                    )}
+
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={nextPage}
+                        sx={{ mt: 2 }}
+                    >
+                        {currentPage === EVENTS.length - 1 ? "Submit RSVP" : "Next"}
+                    </Button>
+                </CardContent>
+            </Card>
+        </Box>
+    );
 }
