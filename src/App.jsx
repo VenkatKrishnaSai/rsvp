@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Box,
     Button,
@@ -30,6 +30,22 @@ export default function WeddingRSVPApp() {
     const [submitted, setSubmitted] = useState(false);
 
     const currentEvent = EVENTS[currentPage];
+
+    useEffect(() => {
+        // Prefill guest names from previous event if available
+        if (rsvpData[currentEvent].guests.length === 0 && currentPage > 0) {
+            const previousEvent = EVENTS[currentPage - 1];
+            const previousGuests = rsvpData[previousEvent].guests || [];
+            setGuestCount(previousGuests.length);
+            setRsvpData(prev => ({
+                ...prev,
+                [currentEvent]: {
+                    ...prev[currentEvent],
+                    guests: [...previousGuests]
+                }
+            }));
+        }
+    }, [currentPage]);
 
     const setAttendance = (attending) => {
         setRsvpData(prev => ({
@@ -71,7 +87,7 @@ export default function WeddingRSVPApp() {
     const nextPage = () => {
         if (currentPage < EVENTS.length - 1) {
             setCurrentPage(prev => prev + 1);
-            setGuestCount(0); // Reset for next event
+            setGuestCount(0); // Reset guest count (will be refilled if guests exist)
         } else {
             setSubmitted(true);
             console.log("Final RSVP:", { name, rsvpData });
