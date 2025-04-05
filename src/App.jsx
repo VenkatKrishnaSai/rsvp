@@ -56,7 +56,7 @@ export default function WeddingRSVPApp() {
         } else {
             setGuestCount(rsvpData[currentEvent].guests.length);
         }
-    }, [currentPage]);
+    }, [currentPage, currentEvent, rsvpData]);
 
     const setAttendance = (attending) => {
         setRsvpData(prev => {
