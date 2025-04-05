@@ -49,7 +49,7 @@ export default function WeddingRSVPApp() {
                 }));
             }
         }
-    }, [currentPage, rsvpData]);
+    }, [currentPage, currentEvent, rsvpData]);
 
     const setAttendance = (attending) => {
         setRsvpData(prev => ({
