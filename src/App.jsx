@@ -32,93 +32,109 @@ export default function WeddingRSVPApp() {
     const currentEvent = EVENTS[currentPage];
 
     useEffect(() => {
-        // Prefill guest names from the previous event if attending
         if (currentPage > 0) {
             const previousEvent = EVENTS[currentPage - 1];
-            const previousGuests = rsvpData[previousEvent]?.guests || [];
+            const previousGuests = rsvpData[previousEvent].guests || [];
+            const currentGuests = rsvpData[currentEvent].guests;
 
-            if (rsvpData[previousEvent]?.attending && previousGuests.length > 0) {
-                // Pre-fill the guest names in the current event
+            if (
+                rsvpData[previousEvent].attending &&
+                previousGuests.length > 0 &&
+                currentGuests.length === 0
+            ) {
                 setGuestCount(previousGuests.length);
                 setRsvpData(prev => ({
                     ...prev,
                     [currentEvent]: {
                         ...prev[currentEvent],
-                        guests: [...previousGuests] // Fill guests from previous event
+                        guests: [...previousGuests]
                     }
                 }));
+            } else {
+                setGuestCount(currentGuests.length);
             }
+        } else {
+            setGuestCount(rsvpData[currentEvent].guests.length);
         }
-    }, [currentPage, currentEvent, rsvpData]);
+    }, [currentPage]);
 
     const setAttendance = (attending) => {
-        setRsvpData(prev => ({
-            ...prev,
-            [currentEvent]: {
-                ...prev[currentEvent],
-                attending,
-                guests: attending ? Array(guestCount).fill("") : [] // Reset guests if not attending
-            }
-        }));
+        setRsvpData(prev => {
+            const existingGuests = attending ? prev[currentEvent].guests : [];
+            return {
+                ...prev,
+                [currentEvent]: {
+                    ...prev[currentEvent],
+                    attending,
+                    guests: existingGuests.length ? existingGuests : Array(guestCount).fill("")
+                }
+            };
+        });
     };
 
     const handleGuestCountChange = (value) => {
         const count = parseInt(value, 10);
         setGuestCount(count);
-
-        // Update the guest list based on the new count
         if (rsvpData[currentEvent].attending) {
-            setRsvpData(prev => ({
-                ...prev,
-                [currentEvent]: {
-                    ...prev[currentEvent],
-                    guests: Array(count).fill("") // Reset guest names if the count changes
-                }
-            }));
+            setRsvpData(prev => {
+                const existingGuests = prev[currentEvent].guests.slice(0, count);
+                while (existingGuests.length < count) existingGuests.push("");
+                return {
+                    ...prev,
+                    [currentEvent]: {
+                        ...prev[currentEvent],
+                        guests: existingGuests
+                    }
+                };
+            });
         }
     };
 
     const handleGuestChange = (index, value) => {
-        const updatedGuests = [...rsvpData[currentEvent].guests];
-        updatedGuests[index] = value;
-        setRsvpData(prev => ({
-            ...prev,
-            [currentEvent]: {
-                ...prev[currentEvent],
-                guests: updatedGuests
-            }
-        }));
+        setRsvpData(prev => {
+            const updatedGuests = [...prev[currentEvent].guests];
+            updatedGuests[index] = value;
+            return {
+                ...prev,
+                [currentEvent]: {
+                    ...prev[currentEvent],
+                    guests: updatedGuests
+                }
+            };
+        });
     };
 
     const handleAddGuest = () => {
-        // Add a new guest input field when "Add Guest" button is clicked
-        setGuestCount(prevCount => prevCount + 1);
-        setRsvpData(prev => ({
-            ...prev,
-            [currentEvent]: {
-                ...prev[currentEvent],
-                guests: [...prev[currentEvent].guests, ""] // Add an empty guest field
-            }
-        }));
+        setGuestCount(prev => prev + 1);
+        setRsvpData(prev => {
+            const updatedGuests = [...prev[currentEvent].guests, ""];
+            return {
+                ...prev,
+                [currentEvent]: {
+                    ...prev[currentEvent],
+                    guests: updatedGuests
+                }
+            };
+        });
     };
 
     const handleRemoveGuest = (index) => {
-        // Remove the guest from the list
-        const updatedGuests = rsvpData[currentEvent].guests.filter((_, i) => i !== index);
-        setGuestCount(updatedGuests.length);
-        setRsvpData(prev => ({
-            ...prev,
-            [currentEvent]: {
-                ...prev[currentEvent],
-                guests: updatedGuests
-            }
-        }));
+        setRsvpData(prev => {
+            const updatedGuests = prev[currentEvent].guests.filter((_, i) => i !== index);
+            setGuestCount(updatedGuests.length);
+            return {
+                ...prev,
+                [currentEvent]: {
+                    ...prev[currentEvent],
+                    guests: updatedGuests
+                }
+            };
+        });
     };
 
     const nextPage = () => {
         if (currentPage < EVENTS.length - 1) {
             setCurrentPage(prev => prev + 1);
-            setGuestCount(0); // Reset guest count (will be refilled if guests exist)
         } else {
             setSubmitted(true);
             console.log("Final RSVP:", { name, rsvpData });
@@ -194,7 +210,7 @@ export default function WeddingRSVPApp() {
                                     <TextField
                                         value={guest}
                                         onChange={(e) => handleGuestChange(index, e.target.value)}
-                                        placeholder={`Guest ${index + 1} (New Guest)`}
+                                        placeholder={`Guest ${index + 1}`}
                                         fullWidth
                                         margin="dense"
                                     />
