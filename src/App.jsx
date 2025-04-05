@@ -18,8 +18,6 @@ const EVENTS = [
     "Post-Wedding Brunch"
 ];
 
-const allSubmissions = [];
-
 export default function WeddingRSVPApp() {
     const [currentPage, setCurrentPage] = useState(0);
     const [name, setName] = useState("");
