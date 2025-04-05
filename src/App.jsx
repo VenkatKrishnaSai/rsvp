@@ -20,10 +20,10 @@ const EVENTS = [
 export default function WeddingRSVPApp() {
     const [currentPage, setCurrentPage] = useState(0);
     const [name, setName] = useState("");
-    // const [guests, setGuests] = useState([""]);
+    const [guestCount, setGuestCount] = useState(0);
     const [rsvpData, setRsvpData] = useState(
         EVENTS.reduce((acc, event) => {
-            acc[event] = { attending: null, guests: [""] };
+            acc[event] = { attending: null, guests: [] };
             return acc;
         }, {})
     );
@@ -36,9 +36,24 @@ export default function WeddingRSVPApp() {
             ...prev,
             [currentEvent]: {
                 ...prev[currentEvent],
-                attending
+                attending,
+                guests: attending ? Array(guestCount).fill("") : []
             }
         }));
+    };
+
+    const handleGuestCountChange = (value) => {
+        const count = parseInt(value, 10);
+        setGuestCount(count);
+        if (rsvpData[currentEvent].attending) {
+            setRsvpData(prev => ({
+                ...prev,
+                [currentEvent]: {
+                    ...prev[currentEvent],
+                    guests: Array(count).fill("")
+                }
+            }));
+        }
     };
 
     const handleGuestChange = (index, value) => {
@@ -53,19 +68,10 @@ export default function WeddingRSVPApp() {
         }));
     };
 
-    const addGuestField = () => {
-        setRsvpData(prev => ({
-            ...prev,
-            [currentEvent]: {
-                ...prev[currentEvent],
-                guests: [...prev[currentEvent].guests, ""]
-            }
-        }));
-    };
-
     const nextPage = () => {
         if (currentPage < EVENTS.length - 1) {
             setCurrentPage(prev => prev + 1);
+            setGuestCount(0); // Reset for next event
         } else {
             setSubmitted(true);
             console.log("Final RSVP:", { name, rsvpData });
@@ -127,9 +133,15 @@ export default function WeddingRSVPApp() {
 
                     {rsvpData[currentEvent].attending && (
                         <Box mb={3}>
-                            <Typography variant="subtitle1" gutterBottom>
-                                Guests You're Bringing
-                            </Typography>
+                            <TextField
+                                label="How many guests are you bringing?"
+                                type="number"
+                                value={guestCount}
+                                onChange={(e) => handleGuestCountChange(e.target.value)}
+                                fullWidth
+                                margin="normal"
+                                inputProps={{ min: 0 }}
+                            />
                             {rsvpData[currentEvent].guests.map((guest, index) => (
                                 <TextField
                                     key={index}
@@ -140,9 +152,6 @@ export default function WeddingRSVPApp() {
                                     margin="dense"
                                 />
                             ))}
-                            <Button variant="outlined" onClick={addGuestField} sx={{ mt: 1 }}>
-                                Add Another Guest
-                            </Button>
                         </Box>
                     )}
 
