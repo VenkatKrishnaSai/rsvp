@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, Card, CardContent, TextField, Typography, Stack } from "@mui/material";
+import { Button, TextField, Typography, Stack } from "@mui/material";
 
 const EVENTS = [
     "Mehendi Ceremony",
@@ -102,125 +102,118 @@ export default function WeddingRSVPApp() {
     };
 
     return (
-        <Box
-            sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
+        <div
+            style={{
+                position: "relative",
                 height: "100vh",
                 backgroundImage: EVENT_IMAGES[currentEvent],
                 backgroundSize: "cover",
                 backgroundPosition: "center",
-                padding: 3,
+                padding: "2rem",
             }}
         >
-            <Box
-                sx={{
-                    maxWidth: "600px",
-                    width: "100%",
-                    backgroundColor: "rgba(255, 255, 255, 0.8)",
-                    borderRadius: 3,
-                    boxShadow: 3,
-                    padding: 4,
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                }}
-            >
-                {submitted ? (
-                    <Box textAlign="center">
-                        <Typography variant="h4" gutterBottom>
-                            Thank You, {name}!
-                        </Typography>
-                        <Typography variant="body1" paragraph>
-                            Your RSVP has been successfully recorded for all events.
-                        </Typography>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            sx={{ mt: 3 }}
-                            onClick={() => alert("Exporting data to Excel...")}
-                        >
-                            Export All RSVPs to Excel
-                        </Button>
-                    </Box>
-                ) : (
-                    <Card>
-                        <CardContent>
-                            {currentPage === 0 && (
-                                <Box mb={4}>
-                                    <TextField
-                                        label="Your Name"
-                                        fullWidth
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        margin="normal"
-                                    />
-                                </Box>
-                            )}
-
-                            <Typography variant="h6" gutterBottom>
-                                {currentEvent}
-                            </Typography>
-
-                            <Box mb={3}>
-                                <Typography variant="subtitle1" gutterBottom>
-                                    Will you attend?
-                                </Typography>
-                                <Stack direction="row" spacing={2}>
-                                    <Button
-                                        variant={rsvpData[currentEvent].attending === true ? "contained" : "outlined"}
-                                        onClick={() => setAttendance(true)}
-                                        sx={{ flexGrow: 1 }}
-                                    >
-                                        Yes
-                                    </Button>
-                                    <Button
-                                        variant={rsvpData[currentEvent].attending === false ? "contained" : "outlined"}
-                                        onClick={() => setAttendance(false)}
-                                        sx={{ flexGrow: 1 }}
-                                    >
-                                        No
-                                    </Button>
-                                </Stack>
-                            </Box>
-
-                            {rsvpData[currentEvent].attending && (
-                                <Box mb={3}>
-                                    <TextField
-                                        label="How many guests are you bringing?"
-                                        type="number"
-                                        value={guestCount}
-                                        onChange={(e) => handleGuestCountChange(e.target.value)}
-                                        fullWidth
-                                        margin="normal"
-                                        inputProps={{ min: 0 }}
-                                    />
-                                    {rsvpData[currentEvent].guests.map((guest, index) => (
-                                        <TextField
-                                            key={index}
-                                            value={guest}
-                                            onChange={(e) => handleGuestChange(index, e.target.value)}
-                                            placeholder={`Guest ${index + 1}`}
-                                            fullWidth
-                                            margin="dense"
-                                        />
-                                    ))}
-                                </Box>
-                            )}
-
-                            <Button
-                                variant="contained"
+            {submitted ? (
+                <div style={{ textAlign: "center", color: "#fff" }}>
+                    <Typography variant="h4" gutterBottom>
+                        Thank You, {name}!
+                    </Typography>
+                    <Typography variant="body1" paragraph>
+                        Your RSVP has been successfully recorded for all events.
+                    </Typography>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        sx={{ mt: 3 }}
+                        onClick={() => alert("Exporting data to Excel...")}
+                    >
+                        Export All RSVPs to Excel
+                    </Button>
+                </div>
+            ) : (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: "100%",
+                        maxWidth: "600px",
+                        padding: "20px",
+                        backgroundColor: "rgb(255,255,255,0)"
+                    }}
+                >
+                    {currentPage === 0 && (
+                        <div style={{ marginBottom: "20px" }}>
+                            <TextField
+                                label="Your Name"
                                 fullWidth
-                                onClick={nextPage}
-                                sx={{ mt: 2 }}
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                margin="normal"
+                            />
+                        </div>
+                    )}
+
+                    <Typography variant="h6" gutterBottom>
+                        {currentEvent}
+                    </Typography>
+
+                    <div style={{ marginBottom: "20px" }}>
+                        <Typography variant="subtitle1" gutterBottom>
+                            Will you attend?
+                        </Typography>
+                        <Stack direction="row" spacing={2}>
+                            <Button
+                                variant={rsvpData[currentEvent].attending === true ? "contained" : "outlined"}
+                                onClick={() => setAttendance(true)}
+                                sx={{ flexGrow: 1 }}
                             >
-                                {currentPage === EVENTS.length - 1 ? "Submit RSVP" : "Next"}
+                                Yes
                             </Button>
-                        </CardContent>
-                    </Card>
-                )}
-            </Box>
-        </Box>
+                            <Button
+                                variant={rsvpData[currentEvent].attending === false ? "contained" : "outlined"}
+                                onClick={() => setAttendance(false)}
+                                sx={{ flexGrow: 1 }}
+                            >
+                                No
+                            </Button>
+                        </Stack>
+                    </div>
+
+                    {rsvpData[currentEvent].attending && (
+                        <div style={{ marginBottom: "20px" }}>
+                            <TextField
+                                label="How many guests are you bringing?"
+                                type="number"
+                                value={guestCount}
+                                onChange={(e) => handleGuestCountChange(e.target.value)}
+                                fullWidth
+                                margin="normal"
+                                inputProps={{ min: 0 }}
+                            />
+                            {rsvpData[currentEvent].guests.map((guest, index) => (
+                                <TextField
+                                    key={index}
+                                    value={guest}
+                                    onChange={(e) => handleGuestChange(index, e.target.value)}
+                                    placeholder={`Guest ${index + 1}`}
+                                    fullWidth
+                                    margin="dense"
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={nextPage}
+                        sx={{ mt: 2 }}
+                    >
+                        {currentPage === EVENTS.length - 1 ? "Submit RSVP" : "Next"}
+                    </Button>
+                </div>
+            )}
+        </div>
     );
 }
