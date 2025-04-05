@@ -32,31 +32,32 @@ export default function WeddingRSVPApp() {
     const currentEvent = EVENTS[currentPage];
 
     useEffect(() => {
-        if (currentPage > 0) {
-            const previousEvent = EVENTS[currentPage - 1];
-            const previousGuests = rsvpData[previousEvent].guests || [];
-            const currentGuests = rsvpData[currentEvent].guests;
+        const currentGuests = rsvpData[currentEvent].guests;
 
-            if (
-                rsvpData[previousEvent].attending &&
-                previousGuests.length > 0 &&
-                currentGuests.length === 0
-            ) {
-                setGuestCount(previousGuests.length);
-                setRsvpData(prev => ({
-                    ...prev,
-                    [currentEvent]: {
-                        ...prev[currentEvent],
-                        guests: [...previousGuests]
-                    }
-                }));
-            } else {
-                setGuestCount(currentGuests.length);
+        // Only prefill if no current guests and marked attending
+        if (rsvpData[currentEvent].attending && currentGuests.length === 0) {
+            // Search backward for the most recent attended event with guests
+            for (let i = currentPage - 1; i >= 0; i--) {
+                const prevEvent = EVENTS[i];
+                const prevData = rsvpData[prevEvent];
+                if (prevData.attending && prevData.guests.length > 0) {
+                    setGuestCount(prevData.guests.length);
+                    setRsvpData(prev => ({
+                        ...prev,
+                        [currentEvent]: {
+                            ...prev[currentEvent],
+                            guests: [...prevData.guests]
+                        }
+                    }));
+                    break;
+                }
             }
         } else {
-            setGuestCount(rsvpData[currentEvent].guests.length);
+            // Still update count if data already exists
+            setGuestCount(currentGuests.length);
         }
     }, [currentPage, currentEvent, rsvpData]);
+
 
     const setAttendance = (attending) => {
         setRsvpData(prev => {
