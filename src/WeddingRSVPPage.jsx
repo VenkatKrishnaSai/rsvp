@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Box, Button, Card, CardContent, TextField, Typography, Stack } from "@mui/material";
-import { db } from "./firebaseConfig";
-
+import { useNavigate } from "react-router-dom";
+import { db } from "./firebaseConfig"; // Import firebase config
 import { collection, addDoc } from "firebase/firestore";
 
-// Constants
 const EVENTS = [
     "Mehendi Ceremony",
     "Sangeet Night",
@@ -13,7 +12,8 @@ const EVENTS = [
     "Post-Wedding Brunch"
 ];
 
-export default function WeddingRSVPApp() {
+export default function WeddingRSVPPage() {
+    const history = useNavigate();  // Initialize history for navigation
     const [currentPage, setCurrentPage] = useState(0);
     const [name, setName] = useState("");
     const [guestCount, setGuestCount] = useState(0);
@@ -26,6 +26,30 @@ export default function WeddingRSVPApp() {
     const [submitted, setSubmitted] = useState(false);
 
     const currentEvent = EVENTS[currentPage];
+
+    useEffect(() => {
+        const currentGuests = rsvpData[currentEvent].guests;
+
+        if (rsvpData[currentEvent].attending && currentGuests.length === 0) {
+            for (let i = currentPage - 1; i >= 0; i--) {
+                const prevEvent = EVENTS[i];
+                const prevData = rsvpData[prevEvent];
+                if (prevData.attending && prevData.guests.length > 0) {
+                    setGuestCount(prevData.guests.length);
+                    setRsvpData(prev => ({
+                        ...prev,
+                        [currentEvent]: {
+                            ...prev[currentEvent],
+                            guests: [...prevData.guests]
+                        }
+                    }));
+                    return;
+                }
+            }
+        } else {
+            setGuestCount(currentGuests.length);
+        }
+    }, [currentPage, currentEvent, rsvpData]);
 
     const setAttendance = (attending) => {
         setRsvpData(prev => ({
@@ -69,28 +93,28 @@ export default function WeddingRSVPApp() {
             // Prepare the RSVP data for Firestore
             const data = {
                 name,
-                event: currentEvent,
-                attending: rsvpData[currentEvent].attending,
-                guests: rsvpData[currentEvent].guests,
+                events: rsvpData,
             };
 
-            // Add the RSVP data to the Firestore database
+            // Add the RSVP data to Firestore
             await addDoc(collection(db, "rsvps"), data);
 
             alert("RSVP submitted successfully!");
-
-            if (currentPage < EVENTS.length - 1) {
-                setCurrentPage(prev => prev + 1);
-                setGuestCount(0);
-            } else {
-                setSubmitted(true);
-            }
+            setSubmitted(true);
         } catch (error) {
             console.error("Error submitting RSVP:", error);
             alert("There was an error submitting your RSVP. Please try again.");
         }
     };
 
+    const nextPage = () => {
+        if (currentPage < EVENTS.length - 1) {
+            setCurrentPage(prev => prev + 1);
+            setGuestCount(0);
+        } else {
+            handleRSVPSubmit();  // Submit data only on the last page
+        }
+    };
 
     if (submitted) {
         return (
@@ -101,6 +125,9 @@ export default function WeddingRSVPApp() {
                 <Typography variant="body1">
                     Your RSVP has been recorded for all events.
                 </Typography>
+                <Button variant="outlined" sx={{ mt: 3 }} onClick={() => history.push("/export")}>
+                    Go to Export Page
+                </Button>
             </Box>
         );
     }
@@ -172,7 +199,7 @@ export default function WeddingRSVPApp() {
                     <Button
                         variant="contained"
                         fullWidth
-                        onClick={handleRSVPSubmit}
+                        onClick={nextPage}
                         sx={{ mt: 2 }}
                     >
                         {currentPage === EVENTS.length - 1 ? "Submit RSVP" : "Next"}
