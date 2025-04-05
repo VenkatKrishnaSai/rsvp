@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Box, Button, Card, CardContent, TextField, Typography, Stack } from "@mui/material";
-import { useNavigate } from "react-router-dom";
 import { db } from "./firebaseConfig"; // Import firebase config
 import { collection, addDoc } from "firebase/firestore";
+import { Link } from "react-router-dom";
 
 const EVENTS = [
     "Mehendi Ceremony",
@@ -13,7 +13,6 @@ const EVENTS = [
 ];
 
 export default function WeddingRSVPPage() {
-    const history = useNavigate();  // Initialize history for navigation
     const [currentPage, setCurrentPage] = useState(0);
     const [name, setName] = useState("");
     const [guestCount, setGuestCount] = useState(0);
@@ -125,9 +124,7 @@ export default function WeddingRSVPPage() {
                 <Typography variant="body1">
                     Your RSVP has been recorded for all events.
                 </Typography>
-                <Button variant="outlined" sx={{ mt: 3 }} onClick={() => history.push("/export")}>
-                    Go to Export Page
-                </Button>
+                <Link to="/export" className="btn btn-primary">hello</Link>
             </Box>
         );
     }
