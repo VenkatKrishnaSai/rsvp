@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Button, TextField, Typography, Stack } from "@mui/material";
+import { Button, TextField, Typography, Stack, Box, Select, MenuItem, InputLabel, FormControl } from "@mui/material";
 
 const EVENTS = [
-    "Mehendi Ceremony",
+    "Haldi",
     "Sangeet Night",
-    "Wedding Ceremony",
-    "Reception Dinner",
-    "Post-Wedding Brunch"
+    "Mehendi",
+    "PelliKoduku/ PelliKuthuru",
+    "Wedding",
+    "Vratam"
 ];
 
 // Background image URLs for each event
 const EVENT_IMAGES = {
-    "Mehendi Ceremony": "url('/images/mehendi.jpg')",
-    "Sangeet Night": "url('/images/sangeet-background.jpg')",
-    "Wedding Ceremony": "url('/images/wedding-background.jpg')",
-    "Reception Dinner": "url('/images/reception-background.jpg')",
-    "Post-Wedding Brunch": "url('/images/brunch-background.jpg')"
+    "Haldi": "url('/images/haldi.jpg')",
+    "Sangeet Night": "url('/images/sangeeth.jpg')",
+    "Mehendi": "url('/images/mehendi.jpg')",
+    "PelliKoduku/ PelliKuthuru": "url('/images/pellik.jpg')",
+    "Wedding": "url('/images/wedding.jpg')",
+    "Vratam": "url('/images/vratam.jpg')"
 };
 
 export default function WeddingRSVPApp() {
@@ -66,8 +68,8 @@ export default function WeddingRSVPApp() {
         }));
     };
 
-    const handleGuestCountChange = (value) => {
-        const count = parseInt(value, 10);
+    const handleGuestCountChange = (event) => {
+        const count = parseInt(event.target.value, 10);
         setGuestCount(count);
         if (rsvpData[currentEvent].attending) {
             setRsvpData(prev => ({
@@ -139,11 +141,13 @@ export default function WeddingRSVPApp() {
                         width: "100%",
                         maxWidth: "600px",
                         padding: "20px",
-                        backgroundColor: "rgb(255,255,255,0)"
+                        backgroundColor: "rgba(255, 255, 255, 0)",
+                        borderRadius: "8px",
+                        boxShadow: "0px 5px 15px rgba(0, 0, 0, 0)",
                     }}
                 >
                     {currentPage === 0 && (
-                        <div style={{ marginBottom: "20px" }}>
+                        <Box mb={4}>
                             <TextField
                                 label="Your Name"
                                 fullWidth
@@ -151,46 +155,54 @@ export default function WeddingRSVPApp() {
                                 onChange={(e) => setName(e.target.value)}
                                 margin="normal"
                             />
-                        </div>
+                        </Box>
                     )}
 
                     <Typography variant="h6" gutterBottom>
                         {currentEvent}
                     </Typography>
 
-                    <div style={{ marginBottom: "20px" }}>
+                    <Box mb={3}>
                         <Typography variant="subtitle1" gutterBottom>
                             Will you attend?
                         </Typography>
-                        <Stack direction="row" spacing={2}>
+                        <Stack direction="row" spacing={2} justifyContent="space-evenly">
                             <Button
                                 variant={rsvpData[currentEvent].attending === true ? "contained" : "outlined"}
                                 onClick={() => setAttendance(true)}
-                                sx={{ flexGrow: 1 }}
+                                sx={{ flex: 1 }}
                             >
                                 Yes
                             </Button>
                             <Button
                                 variant={rsvpData[currentEvent].attending === false ? "contained" : "outlined"}
                                 onClick={() => setAttendance(false)}
-                                sx={{ flexGrow: 1 }}
+                                sx={{ flex: 1 }}
                             >
                                 No
                             </Button>
                         </Stack>
-                    </div>
+                    </Box>
 
                     {rsvpData[currentEvent].attending && (
-                        <div style={{ marginBottom: "20px" }}>
-                            <TextField
-                                label="How many guests are you bringing?"
-                                type="number"
-                                value={guestCount}
-                                onChange={(e) => handleGuestCountChange(e.target.value)}
-                                fullWidth
-                                margin="normal"
-                                inputProps={{ min: 0 }}
-                            />
+                        <Box mb={3}>
+                            <FormControl fullWidth margin="normal">
+                                <InputLabel id="guest-count-label">How many guests are you bringing?</InputLabel>
+                                <Select
+                                    labelId="guest-count-label"
+                                    value={guestCount}
+                                    onChange={handleGuestCountChange}
+                                    label="How many guests are you bringing?"
+                                >
+                                    <MenuItem value={0}>0</MenuItem>
+                                    <MenuItem value={1}>1</MenuItem>
+                                    <MenuItem value={2}>2</MenuItem>
+                                    <MenuItem value={3}>3</MenuItem>
+                                    <MenuItem value={4}>4</MenuItem>
+                                    <MenuItem value={5}>5</MenuItem>
+                                    <MenuItem value={6}>6</MenuItem>
+                                </Select>
+                            </FormControl>
                             {rsvpData[currentEvent].guests.map((guest, index) => (
                                 <TextField
                                     key={index}
@@ -201,7 +213,7 @@ export default function WeddingRSVPApp() {
                                     margin="dense"
                                 />
                             ))}
-                        </div>
+                        </Box>
                     )}
 
                     <Button
