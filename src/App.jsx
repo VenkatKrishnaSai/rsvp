@@ -5,7 +5,8 @@ import {
     Card,
     CardContent,
     TextField,
-    Typography
+    Typography,
+    Stack
 } from "@mui/material";
 
 const EVENTS = [
@@ -19,9 +20,10 @@ const EVENTS = [
 export default function WeddingRSVPApp() {
     const [currentPage, setCurrentPage] = useState(0);
     const [name, setName] = useState("");
+    const [guests, setGuests] = useState([""]);
     const [rsvpData, setRsvpData] = useState(
         EVENTS.reduce((acc, event) => {
-            acc[event] = { attending: false, guests: [""] };
+            acc[event] = { attending: null, guests: [""] };
             return acc;
         }, {})
     );
@@ -29,12 +31,12 @@ export default function WeddingRSVPApp() {
 
     const currentEvent = EVENTS[currentPage];
 
-    const handleToggleAttendance = () => {
+    const setAttendance = (attending) => {
         setRsvpData(prev => ({
             ...prev,
             [currentEvent]: {
                 ...prev[currentEvent],
-                attending: !prev[currentEvent].attending
+                attending
             }
         }));
     };
@@ -104,14 +106,23 @@ export default function WeddingRSVPApp() {
                     </Typography>
 
                     <Box mb={3}>
-                        <Typography variant="subtitle1">Will you attend?</Typography>
-                        <Button
-                            variant={rsvpData[currentEvent].attending ? "contained" : "outlined"}
-                            onClick={handleToggleAttendance}
-                            sx={{ mt: 1, mb: 2 }}
-                        >
-                            {rsvpData[currentEvent].attending ? "Yes" : "No"}
-                        </Button>
+                        <Typography variant="subtitle1" gutterBottom>
+                            Will you attend?
+                        </Typography>
+                        <Stack direction="row" spacing={2}>
+                            <Button
+                                variant={rsvpData[currentEvent].attending === true ? "contained" : "outlined"}
+                                onClick={() => setAttendance(true)}
+                            >
+                                Yes
+                            </Button>
+                            <Button
+                                variant={rsvpData[currentEvent].attending === false ? "contained" : "outlined"}
+                                onClick={() => setAttendance(false)}
+                            >
+                                No
+                            </Button>
+                        </Stack>
                     </Box>
 
                     {rsvpData[currentEvent].attending && (
