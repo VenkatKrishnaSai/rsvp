@@ -8,6 +8,7 @@ import {
     Typography,
     Stack
 } from "@mui/material";
+import * as XLSX from "xlsx";
 
 const EVENTS = [
     "Mehendi Ceremony",
@@ -34,9 +35,7 @@ export default function WeddingRSVPApp() {
     useEffect(() => {
         const currentGuests = rsvpData[currentEvent].guests;
 
-        // Only prefill if no current guests and marked attending
         if (rsvpData[currentEvent].attending && currentGuests.length === 0) {
-            // Search backward for the most recent attended event with guests
             for (let i = currentPage - 1; i >= 0; i--) {
                 const prevEvent = EVENTS[i];
                 const prevData = rsvpData[prevEvent];
@@ -49,93 +48,88 @@ export default function WeddingRSVPApp() {
                             guests: [...prevData.guests]
                         }
                     }));
-                    break;
+                    return;
                 }
             }
         } else {
-            // Still update count if data already exists
             setGuestCount(currentGuests.length);
         }
     }, [currentPage, currentEvent, rsvpData]);
 
-
     const setAttendance = (attending) => {
-        setRsvpData(prev => {
-            const existingGuests = attending ? prev[currentEvent].guests : [];
-            return {
-                ...prev,
-                [currentEvent]: {
-                    ...prev[currentEvent],
-                    attending,
-                    guests: existingGuests.length ? existingGuests : Array(guestCount).fill("")
-                }
-            };
-        });
+        setRsvpData(prev => ({
+            ...prev,
+            [currentEvent]: {
+                ...prev[currentEvent],
+                attending,
+                guests: attending ? Array(guestCount).fill("") : []
+            }
+        }));
     };
 
     const handleGuestCountChange = (value) => {
         const count = parseInt(value, 10);
         setGuestCount(count);
         if (rsvpData[currentEvent].attending) {
-            setRsvpData(prev => {
-                const existingGuests = prev[currentEvent].guests.slice(0, count);
-                while (existingGuests.length < count) existingGuests.push("");
-                return {
-                    ...prev,
-                    [currentEvent]: {
-                        ...prev[currentEvent],
-                        guests: existingGuests
-                    }
-                };
-            });
+            setRsvpData(prev => ({
+                ...prev,
+                [currentEvent]: {
+                    ...prev[currentEvent],
+                    guests: Array(count).fill("")
+                }
+            }));
         }
     };
 
     const handleGuestChange = (index, value) => {
-        setRsvpData(prev => {
-            const updatedGuests = [...prev[currentEvent].guests];
-            updatedGuests[index] = value;
-            return {
-                ...prev,
-                [currentEvent]: {
-                    ...prev[currentEvent],
-                    guests: updatedGuests
-                }
-            };
-        });
+        const updatedGuests = [...rsvpData[currentEvent].guests];
+        updatedGuests[index] = value;
+        setRsvpData(prev => ({
+            ...prev,
+            [currentEvent]: {
+                ...prev[currentEvent],
+                guests: updatedGuests
+            }
+        }));
     };
 
-    const handleAddGuest = () => {
-        setGuestCount(prev => prev + 1);
-        setRsvpData(prev => {
-            const updatedGuests = [...prev[currentEvent].guests, ""];
-            return {
-                ...prev,
-                [currentEvent]: {
-                    ...prev[currentEvent],
-                    guests: updatedGuests
-                }
-            };
-        });
-    };
+    const exportToExcel = () => {
+        const workbook = XLSX.utils.book_new();
 
-    const handleRemoveGuest = (index) => {
-        setRsvpData(prev => {
-            const updatedGuests = prev[currentEvent].guests.filter((_, i) => i !== index);
-            setGuestCount(updatedGuests.length);
-            return {
-                ...prev,
-                [currentEvent]: {
-                    ...prev[currentEvent],
-                    guests: updatedGuests
-                }
-            };
+        EVENTS.forEach(event => {
+            const data = rsvpData[event];
+            const sheetData = [
+                ["Event", event],
+                ["Attending", data.attending ? "Yes" : "No"],
+                [],
+                ["Guest Number", "Guest Name"]
+            ];
+
+            if (data.attending && data.guests.length > 0) {
+                data.guests.forEach((guest, index) => {
+                    sheetData.push([`Guest ${index + 1}`, guest]);
+                });
+            }
+
+            const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+
+            // Apply some styling tweaks (like bold headers)
+            const boldCell = { font: { bold: true } };
+            worksheet["A1"].s = boldCell;
+            worksheet["A2"].s = boldCell;
+            worksheet["A4"].s = boldCell;
+            worksheet["B4"].s = boldCell;
+
+            XLSX.utils.book_append_sheet(workbook, worksheet, event);
         });
+
+        XLSX.writeFile(workbook, `Wedding_RSVP_${name || "Guest"}.xlsx`);
     };
 
     const nextPage = () => {
         if (currentPage < EVENTS.length - 1) {
             setCurrentPage(prev => prev + 1);
+            setGuestCount(0);
         } else {
             setSubmitted(true);
             console.log("Final RSVP:", { name, rsvpData });
@@ -151,6 +145,9 @@ export default function WeddingRSVPApp() {
                 <Typography variant="body1">
                     Your RSVP has been recorded for all events.
                 </Typography>
+                <Button variant="outlined" sx={{ mt: 3 }} onClick={exportToExcel}>
+                    Export to Excel
+                </Button>
             </Box>
         );
     }
@@ -207,32 +204,15 @@ export default function WeddingRSVPApp() {
                                 inputProps={{ min: 0 }}
                             />
                             {rsvpData[currentEvent].guests.map((guest, index) => (
-                                <Box key={index} mb={2}>
-                                    <TextField
-                                        value={guest}
-                                        onChange={(e) => handleGuestChange(index, e.target.value)}
-                                        placeholder={`Guest ${index + 1}`}
-                                        fullWidth
-                                        margin="dense"
-                                    />
-                                    <Button
-                                        variant="outlined"
-                                        color="error"
-                                        onClick={() => handleRemoveGuest(index)}
-                                        sx={{ mt: 1 }}
-                                    >
-                                        Remove
-                                    </Button>
-                                </Box>
+                                <TextField
+                                    key={index}
+                                    value={guest}
+                                    onChange={(e) => handleGuestChange(index, e.target.value)}
+                                    placeholder={`Guest ${index + 1}`}
+                                    fullWidth
+                                    margin="dense"
+                                />
                             ))}
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                onClick={handleAddGuest}
-                                sx={{ mt: 2 }}
-                            >
-                                Add Guest
-                            </Button>
                         </Box>
                     )}
 
