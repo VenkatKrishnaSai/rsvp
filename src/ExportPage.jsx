@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, Typography } from "@mui/material";
-import { db } from "./firebaseConfig"; // Import firebase config
+import { Box, Button, Typography, Paper, CircularProgress } from "@mui/material";
+import { db } from "./firebaseConfig";
 import { collection, getDocs } from "firebase/firestore";
 import * as XLSX from "xlsx";
 
@@ -15,6 +15,7 @@ const EVENTS = [
 
 export default function ExportPage() {
     const [allUserData, setAllUserData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -27,6 +28,8 @@ export default function ExportPage() {
                 setAllUserData(data);
             } catch (error) {
                 console.error("Error fetching data from Firestore:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -43,22 +46,21 @@ export default function ExportPage() {
 
                 allUserData.forEach((entry) => {
                     const data = entry.events[event];
-                    if (data.attending) {
-                        // Count the main user + guests
+                    if (data?.attending) {
                         totalAttendees += 1 + data.guests.length;
 
                         rows.push({
                             User: entry.name,
                             Attending: "Yes",
                             Guests: data.guests.join(", "),
-                            Count: 1 + data.guests.length,  // Main user + guests
+                            Count: 1 + data.guests.length
                         });
                     } else {
                         rows.push({
                             User: entry.name,
                             Attending: "No",
                             Guests: "",
-                            Count: 0,
+                            Count: 0
                         });
                     }
                 });
@@ -77,16 +79,38 @@ export default function ExportPage() {
     };
 
     return (
-        <Box maxWidth={600} mx="auto" p={3}>
-            <Typography variant="h4" gutterBottom>
-                Export RSVP Data
-            </Typography>
-            <Typography variant="body1" gutterBottom>
-                Click the button below to export all RSVP data to an Excel file.
-            </Typography>
-            <Button variant="outlined" onClick={exportDataToExcel} sx={{ mt: 2 }}>
-                Export to Excel
-            </Button>
+        <Box
+            minHeight="100vh"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            sx={{ background: "linear-gradient(to right, #fdeff9, #ec38bc)" }}
+        >
+            <Paper elevation={6} sx={{ p: 4, maxWidth: 600, width: "100%", borderRadius: 4 }}>
+                {loading ? (
+                    <Box display="flex" justifyContent="center" alignItems="center" height={200}>
+                        <CircularProgress />
+                    </Box>
+                ) : (
+                    <>
+                        <Typography variant="h4" fontWeight="bold" mb={2} color="primary">
+                            Export RSVP Data
+                        </Typography>
+                        <Typography variant="body1" mb={3}>
+                            Click the button below to export all RSVP data to an Excel file. Each event will be in its own sheet.
+                        </Typography>
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            fullWidth
+                            size="large"
+                            onClick={exportDataToExcel}
+                        >
+                            Export to Excel
+                        </Button>
+                    </>
+                )}
+            </Paper>
         </Box>
     );
 }
