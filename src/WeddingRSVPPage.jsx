@@ -211,7 +211,7 @@ export default function WeddingRSVPApp() {
     return (
         <Box
             sx={{
-                minHeight: "100vh",
+                minHeight: "100vh", // This ensures the Box takes up the full screen height
                 backgroundImage: `url('${showWelcomePage ? WELCOME_IMAGE : EVENT_IMAGES[currentEvent]}')`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
@@ -219,10 +219,12 @@ export default function WeddingRSVPApp() {
                 justifyContent: "center",
                 alignItems: "center",
                 px: 2,
-                py: 4
+                py: 0,
+                overflow: 'hidden', // Prevents overflow which could create a scrollbar
+                width: '100%', // Ensures Box takes full width
             }}
         >
-            {showWelcomePage ? (
+        {showWelcomePage ? (
                 <Card sx={{ p: 1, textAlign: "center", backdropFilter: "blur(8px)", width: "100%", maxWidth: 500, backgroundColor: "rgba(255,255,255,0.3)" }}>
                     <Typography variant="h3" sx={{ mb: 3, fontFamily: "'Great Vibes', cursive", color: "#34383c", fontWeight: "bold", fontSize: "1.5rem"  }}>
                         Vineeth Sucharitha's Wedding RSVP
@@ -352,7 +354,12 @@ export default function WeddingRSVPApp() {
                         </Box>
                     )}
 
-                    <Button variant="contained" fullWidth onClick={nextPage}>
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={nextPage}
+                        disabled={name.trim() === ""} // Disable button if name is empty
+                    >
                         {currentPage === EVENTS.length - 1 ? "Submit RSVP" : "Next"}
                     </Button>
                 </Card>
