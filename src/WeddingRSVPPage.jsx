@@ -26,6 +26,34 @@ const EVENTS = [
     "Vratam"
 ];
 
+const EVENT_DETAILS = {
+    "Haldi": {
+        date: "May 10, 2025",
+        location: "6147 FM Rd 455, Anna, TX 75409"
+    },
+    "Sangeeth Night": {
+        date: "May 10, 2025",
+        location: "Serengeti Estates, Gate B, 3487 Co Rd 338, Melissa, TX 75454"
+    },
+    "Mehendi": {
+        date: "May 13, 2025",
+        location: "Serengeti Estates, Gate B, 3487 Co Rd 338, Melissa, TX 75454"
+    },
+    "PelliKoduku/ PelliKuthuru": {
+        date: "May 14, 2025",
+        location: "Serengeti Estates, Gate B, 3487 Co Rd 338, Melissa, TX 75454"
+    },
+    "Wedding": {
+        date: "May 15, 2025",
+        location: "Serengeti Estates, Gate B, 3487 Co Rd 338, Melissa, TX 75454"
+    },
+    "Vratam": {
+        date: "May 16, 2025",
+        location: "Serengeti Estates, Gate B, 3487 Co Rd 338, Melissa, TX 75454"
+    }
+};
+
+
 const EVENT_IMAGES = {
     "Haldi": "/images/haldi.jpg",
     "Sangeeth Night": "/images/sangeeth.jpg",
@@ -132,6 +160,20 @@ export default function WeddingRSVPApp() {
     };
 
     const nextPage = () => {
+        const currentData = rsvpData[currentEvent];
+
+        // Validate that the user selected Yes/No
+        if (currentData.attending === null) {
+            alert("Please select Yes or No to proceed.");
+            return;
+        }
+
+        // If attending, make sure all guest names are filled
+        if (currentData.attending && currentData.guests.some(name => name.trim() === "")) {
+            alert("Please enter names for all guests.");
+            return;
+        }
+
         if (currentPage < EVENTS.length - 1) {
             setCurrentPage(prev => prev + 1);
             setGuestCount(0);
@@ -140,6 +182,7 @@ export default function WeddingRSVPApp() {
             handleRSVPSubmit();
         }
     };
+
 
     return (
         <Box
@@ -168,7 +211,7 @@ export default function WeddingRSVPApp() {
                     </Card>
                 </>
             ) : (
-                <Card sx={{ width: "100%", maxWidth: 600, p: 4, borderRadius: 4, boxShadow: 6, backdropFilter: "blur(12px)" }}>
+                <Card sx={{ width: "100%", maxWidth: 600, p: 4, borderRadius: 4, boxShadow: 6, backdropFilter: "blur(12px)", backgroundColor: "rgba(255, 255, 255, 0.4)" }}>
                     {/* Event Name at the top */}
                     <Typography
                         variant="h4"
@@ -177,11 +220,25 @@ export default function WeddingRSVPApp() {
                             textAlign: "center",
                             mb: 3,
                             fontWeight: 600,
-                            color: "#4A148C",
+                            color: "#4a148c",
                             textShadow: "2px 2px 6px rgba(0,0,0,0.3)"
                         }}
                     >
                         {currentEvent}
+                    </Typography>
+
+                    <Typography
+                        variant="subtitle1"
+                        sx={{ textAlign: "center", color: "text.secondary", mb: 2 }}
+                    >
+                        {EVENT_DETAILS[currentEvent].date}
+                    </Typography>
+
+                    <Typography
+                        variant="body2"
+                        sx={{ textAlign: "center", color: "text.secondary", mb: 3 }}
+                    >
+                        📍 {EVENT_DETAILS[currentEvent].location}
                     </Typography>
 
                     <LinearProgress
