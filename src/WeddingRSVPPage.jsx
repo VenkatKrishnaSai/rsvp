@@ -223,18 +223,18 @@ export default function WeddingRSVPApp() {
             }}
         >
             {showWelcomePage ? (
-                <Card sx={{ p: 4, textAlign: "center", backdropFilter: "blur(8px)", width: "100%", maxWidth: 600, backgroundColor: "rgba(255, 255, 255, 0.3)" }}>
-                    <Typography variant="h3" sx={{ mb: 3, fontFamily: "'Great Vibes', cursive", color: "#eee7e7", fontWeight: "bold" }}>
+                <Card sx={{ p: 1, textAlign: "center", backdropFilter: "blur(8px)", width: "100%", maxWidth: 500, backgroundColor: "rgba(255, 255, 255, 0.3)" }}>
+                    <Typography variant="h3" sx={{ mb: 3, fontFamily: "'Great Vibes', cursive", color: "#eee7e7", fontWeight: "bold", fontSize: "1.5rem"  }}>
                         Vineeth Sucharitha's Wedding RSVP
                     </Typography>
-                    <Typography variant="h6" sx={{ mb: 3, color: "#eee7e7" }}>
+                    <Typography variant="h6" sx={{ mb: 3, color: "#eee7e7", fontSize: "1rem" }}>
                         We're excited to have you with us!
                     </Typography>
 
-                    <Typography variant="h6" sx={{ mb: 3, color: "#eee7e7", fontWeight : "bold"}}>
+                    <Typography variant="h6" sx={{ mb: 3, color: "#eee7e7", fontWeight : "bold", fontSize: "1rem" }}>
                         Please confirm your presence by 21st April, 2025.
                     </Typography>
-                    <Typography variant="h6" sx={{ mb: 3, color: "#eee7e7" }}>
+                    <Typography variant="h6" sx={{ mb: 3, color: "#eee7e7", fontSize: "1rem"  }}>
                         Please click below to start your RSVP.
                     </Typography>
                     <Button variant="contained" color="primary" onClick={handleStartRSVP}>
