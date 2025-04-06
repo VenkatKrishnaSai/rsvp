@@ -26,30 +26,46 @@ const EVENTS = [
     "Vratam"
 ];
 
+const EVENT_COLORS = {
+    "Haldi": "#34383c",      // Orange
+    "Sangeeth Night": "#eee7e7", // Blue Violet
+    "Mehendi": "#34383c",    // Forest Green
+    "PelliKoduku/ PelliKuthuru": "#34383c", // Deep Pink
+    "Wedding": "#34383c",    // Tomato
+    "Vratam": "#34383c"      // Gold
+};
+
+
 const EVENT_DETAILS = {
     "Haldi": {
         date: "May 10, 2025",
+        timings: "8:30 AM",
         location: "6147 FM Rd 455, Anna, TX 75409"
     },
     "Sangeeth Night": {
         date: "May 10, 2025",
+        timings: "6:30 AM",
         location: "Serengeti Estates, Gate B, 3487 Co Rd 338, Melissa, TX 75454"
     },
     "Mehendi": {
         date: "May 13, 2025",
+        timings: "5:00 PM",
         location: "Serengeti Estates, Gate B, 3487 Co Rd 338, Melissa, TX 75454"
     },
     "PelliKoduku/ PelliKuthuru": {
         date: "May 14, 2025",
+        timings: "9:00 AM",
         location: "Serengeti Estates, Gate B, 3487 Co Rd 338, Melissa, TX 75454"
     },
     "Wedding": {
         date: "May 15, 2025",
+        timings: "8:06 AM",
         location: "Serengeti Estates, Gate B, 3487 Co Rd 338, Melissa, TX 75454"
     },
     "Vratam": {
         date: "May 16, 2025",
-        location: "Serengeti Estates, Gate B, 3487 Co Rd 338, Melissa, TX 75454"
+        timings: "9:00 AM",
+        location: "13576 Empire Maker Rd, Frisco, TX 75035"
     }
 };
 
@@ -211,7 +227,7 @@ export default function WeddingRSVPApp() {
                     </Card>
                 </>
             ) : (
-                <Card sx={{ width: "100%", maxWidth: 600, p: 4, borderRadius: 4, boxShadow: 6, backdropFilter: "blur(12px)", backgroundColor: "rgba(255, 255, 255, 0.4)" }}>
+                <Card sx={{ width: "100%", maxWidth: 600, p: 4, borderRadius: 4, boxShadow: 6, backdropFilter: "blur(12px)", backgroundColor: "rgba(255, 255, 255, 0.3)" }}>
                     {/* Event Name at the top */}
                     <Typography
                         variant="h4"
@@ -220,7 +236,7 @@ export default function WeddingRSVPApp() {
                             textAlign: "center",
                             mb: 3,
                             fontWeight: 600,
-                            color: "#4a148c",
+                            color: EVENT_COLORS[currentEvent],
                             textShadow: "2px 2px 6px rgba(0,0,0,0.3)"
                         }}
                     >
@@ -229,14 +245,21 @@ export default function WeddingRSVPApp() {
 
                     <Typography
                         variant="subtitle1"
-                        sx={{ textAlign: "center", color: "text.secondary", mb: 2 }}
+                        sx={{ textAlign: "center", color: EVENT_COLORS[currentEvent], mb: 2, fontSize: "1rem" }}
                     >
                         {EVENT_DETAILS[currentEvent].date}
                     </Typography>
 
                     <Typography
+                        variant="subtitle2"
+                        sx={{ textAlign: "center", color: EVENT_COLORS[currentEvent], mb: 2, fontSize: "1rem" }}
+                    >
+                        {EVENT_DETAILS[currentEvent].timings}
+                    </Typography>
+
+                    <Typography
                         variant="body2"
-                        sx={{ textAlign: "center", color: "text.secondary", mb: 3 }}
+                        sx={{ textAlign: "center", color: EVENT_COLORS[currentEvent], mb: 3 , fontSize: "1rem"}}
                     >
                         📍 {EVENT_DETAILS[currentEvent].location}
                     </Typography>
