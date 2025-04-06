@@ -10,15 +10,12 @@ import {
     Select,
     MenuItem,
     Card,
-    useMediaQuery,
     LinearProgress
 } from "@mui/material";
-import { useTheme } from '@mui/material/styles';
-import * as XLSX from "xlsx";
 
 const EVENTS = [
     "Haldi",
-    "Sangeet Night",
+    "Sangeeth Night",
     "Mehendi",
     "PelliKoduku/ PelliKuthuru",
     "Wedding",
@@ -26,12 +23,12 @@ const EVENTS = [
 ];
 
 const EVENT_IMAGES = {
-    Haldi: "/images/haldi.jpg",
-    "Sangeet Night": "/images/sangeeth.jpg",
-    Mehendi: "/images/mehendi.jpg",
+    "Haldi": "/images/haldi.jpg",
+    "Sangeeth Night": "/images/sangeeth.jpg",
+    "Mehendi": "/images/mehendi.jpg",
     "PelliKoduku/ PelliKuthuru": "/images/pellik.jpg",
-    Wedding: "/images/wedding.jpg",
-    Vratam: "/images/vratam.jpg"
+    "Wedding": "/images/wedding.jpg",
+    "Vratam": "/images/vratam.jpg"
 };
 
 export default function WeddingRSVPApp() {
@@ -46,8 +43,8 @@ export default function WeddingRSVPApp() {
         }, {})
     );
 
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+    // const theme = useTheme();
+    // const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
     const currentEvent = EVENTS[currentPage];
 
