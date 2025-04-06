@@ -79,6 +79,8 @@ const EVENT_IMAGES = {
     "Vratam": "/images/vratam.jpg"
 };
 
+const WELCOME_IMAGE = "/images/gib.jpg";
+
 export default function WeddingRSVPApp() {
     const [currentPage, setCurrentPage] = useState(0);
     const [name, setName] = useState("");
@@ -91,12 +93,18 @@ export default function WeddingRSVPApp() {
         }, {})
     );
     const [width, height] = useWindowSize();
+    const [showWelcomePage, setShowWelcomePage] = useState(true);
+
 
 
     // const theme = useTheme();
     // const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
     const currentEvent = EVENTS[currentPage];
+
+    const handleStartRSVP = () => {
+        setShowWelcomePage(false);
+    };
 
     useEffect(() => {
         const currentGuests = rsvpData[currentEvent].guests;
@@ -204,7 +212,7 @@ export default function WeddingRSVPApp() {
         <Box
             sx={{
                 minHeight: "100vh",
-                backgroundImage: `url('${EVENT_IMAGES[currentEvent]}')`,
+                backgroundImage: `url('${showWelcomePage ? WELCOME_IMAGE : EVENT_IMAGES[currentEvent]}')`,
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 display: "flex",
@@ -214,7 +222,19 @@ export default function WeddingRSVPApp() {
                 py: 4
             }}
         >
-            {submitted ? (
+            {showWelcomePage ? (
+                <Card sx={{ p: 4, textAlign: "center", backdropFilter: "blur(8px)", width: "100%", maxWidth: 600 }}>
+                    <Typography variant="h3" sx={{ mb: 3, color: "#4a148c", fontWeight: "bold" }}>
+                        Welcome to Our Vineeth Sucharitha Wedding RSVP
+                    </Typography>
+                    <Typography variant="h6" sx={{ mb: 3 }}>
+                        We're excited to have you with us! Please click below to start your RSVP.
+                    </Typography>
+                    <Button variant="contained" color="primary" onClick={handleStartRSVP}>
+                        Start RSVP
+                    </Button>
+                </Card>
+            ): submitted ? (
                 <>
                     <Confetti width={width} height={height} numberOfPieces={300} recycle={false} />
                     <Card sx={{ p: 4, textAlign: "center", backdropFilter: "blur(8px)" }}>
