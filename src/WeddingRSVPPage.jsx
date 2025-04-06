@@ -3,16 +3,13 @@ import {
     Box,
     Button,
     Flex,
-    FormControl,
-    FormLabel,
+    Field,
     Input,
     Select,
     Text,
-    VStack,
-    useToast,
+    VStack
 } from "@chakra-ui/react";
-import * as XLSX from "xlsx";
-import { db } from "./firebase";
+import { db } from "./firebaseConfig";
 import { ref, push } from "firebase/database";
 
 const EVENTS = [
@@ -44,7 +41,6 @@ export default function WeddingRSVPApp() {
         }, {})
     );
     const [submitted, setSubmitted] = useState(false);
-    const toast = useToast();
 
     const currentEvent = EVENTS[currentPage];
 
@@ -114,7 +110,7 @@ export default function WeddingRSVPApp() {
             await push(ref(db, 'rsvps'), entry);
             setSubmitted(true);
         } catch (error) {
-            toast({ status: 'error', title: 'Submission failed' });
+            console.log({ status: 'error', title: 'Submission failed' });
         }
     };
 
@@ -140,14 +136,14 @@ export default function WeddingRSVPApp() {
             <Box maxW="480px" mx="auto" bg="whiteAlpha.900" borderRadius="lg" p={4}>
                 <VStack spacing={4} align="stretch">
                     {currentPage === 0 && (
-                        <FormControl>
-                            <FormLabel>Your Name</FormLabel>
+                        <Field>
+                            <Field.Label>Your Name</Field.Label>
                             <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your full name" />
-                        </FormControl>
+                        </Field>
                     )}
 
-                    <FormControl>
-                        <FormLabel>{currentEvent}</FormLabel>
+                    <Field>
+                        <Field.Label>{currentEvent}</Field.Label>
                         <Flex justify="space-around">
                             <Button colorScheme={rsvpData[currentEvent].attending ? 'teal' : 'gray'} onClick={() => setAttendance(true)}>
                                 Yes
@@ -156,23 +152,23 @@ export default function WeddingRSVPApp() {
                                 No
                             </Button>
                         </Flex>
-                    </FormControl>
+                    </Field>
 
                     {rsvpData[currentEvent].attending && (
                         <>
-                            <FormControl>
-                                <FormLabel>How many guests?</FormLabel>
+                            <Field>
+                                <Field.Label>How many guests?</Field.Label>
                                 <Select value={guestCount} onChange={handleGuestCountChange}>
                                     {[...Array(7).keys()].map(n => (
                                         <option key={n} value={n}>{n}</option>
                                     ))}
                                 </Select>
-                            </FormControl>
+                            </Field>
                             {rsvpData[currentEvent].guests.map((guest, index) => (
-                                <FormControl key={index}>
-                                    <FormLabel>Guest {index + 1}</FormLabel>
+                                <Field key={index}>
+                                    <Field.Label>Guest {index + 1}</Field.Label>
                                     <Input value={guest} onChange={(e) => handleGuestChange(index, e.target.value)} />
-                                </FormControl>
+                                </Field>
                             ))}
                         </>
                     )}
