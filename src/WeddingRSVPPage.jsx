@@ -228,7 +228,14 @@ export default function WeddingRSVPApp() {
                         Vineeth Sucharitha's Wedding RSVP
                     </Typography>
                     <Typography variant="h6" sx={{ mb: 3, color: "#eee7e7" }}>
-                        We're excited to have you with us! Please click below to start your RSVP.
+                        We're excited to have you with us!
+                    </Typography>
+
+                    <Typography variant="h6" sx={{ mb: 3, color: "#eee7e7", fontWeight : "bold"}}>
+                        Please confirm your presence by 21st April, 2025.
+                    </Typography>
+                    <Typography variant="h6" sx={{ mb: 3, color: "#eee7e7" }}>
+                        Please click below to start your RSVP.
                     </Typography>
                     <Button variant="contained" color="primary" onClick={handleStartRSVP}>
                         Start RSVP
