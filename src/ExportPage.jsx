@@ -8,7 +8,7 @@ const EVENTS = [
     "Haldi",
     "Sangeet Night",
     "Mehendi",
-    "PelliKoduku/ PelliKuthuru",
+    "PelliKoduku_PelliKuthuru",
     "Wedding",
     "Vratam"
 ];
@@ -68,6 +68,7 @@ export default function ExportPage() {
                 rows.push({ User: "Total", Attending: "", Guests: "", Count: totalAttendees });
 
                 const sheet = XLSX.utils.json_to_sheet(rows);
+                console.log(sheet);
                 XLSX.utils.book_append_sheet(workbook, sheet, event);
             });
 

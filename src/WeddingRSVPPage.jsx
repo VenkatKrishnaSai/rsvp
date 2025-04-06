@@ -12,6 +12,10 @@ import {
     Card,
     LinearProgress
 } from "@mui/material";
+import { db } from "./firebaseConfig"; // Import firebase config
+import { collection, addDoc } from "firebase/firestore";
+import Confetti from "react-confetti";
+import { useWindowSize } from "@react-hook/window-size";
 
 const EVENTS = [
     "Haldi",
@@ -42,6 +46,8 @@ export default function WeddingRSVPApp() {
             return acc;
         }, {})
     );
+    const [width, height] = useWindowSize();
+
 
     // const theme = useTheme();
     // const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -96,6 +102,23 @@ export default function WeddingRSVPApp() {
         }
     };
 
+    const handleRSVPSubmit = async () => {
+        try {
+            // Prepare the RSVP data for Firestore
+            const data = {
+                name,
+                events: rsvpData,
+            };
+
+            // Add the RSVP data to Firestore
+            await addDoc(collection(db, "rsvps"), data);
+
+            setSubmitted(true);
+        } catch (error) {
+            console.error("Error submitting RSVP:", error);
+        }
+    };
+
     const handleGuestChange = (index, value) => {
         const updatedGuests = [...rsvpData[currentEvent].guests];
         updatedGuests[index] = value;
@@ -114,6 +137,7 @@ export default function WeddingRSVPApp() {
             setGuestCount(0);
         } else {
             setSubmitted(true);
+            handleRSVPSubmit();
         }
     };
 
@@ -132,14 +156,39 @@ export default function WeddingRSVPApp() {
             }}
         >
             {submitted ? (
-                <Card sx={{ p: 4, textAlign: "center", backdropFilter: "blur(8px)" }}>
-                    <Typography variant="h4">Thank You, {name}!</Typography>
-                    <Typography>Your RSVP has been successfully recorded.</Typography>
-                    <Button sx={{ mt: 3 }} onClick={() => alert("Exporting...")}>Export RSVPs</Button>
-                </Card>
+                <>
+                    <Confetti width={width} height={height} numberOfPieces={300} recycle={false} />
+                    <Card sx={{ p: 4, textAlign: "center", backdropFilter: "blur(8px)" }}>
+                        <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
+                            🎉 Thank You, {name}!
+                        </Typography>
+                        <Typography variant="body1">
+                            Your RSVP has been received. We're excited to see you at the celebration!
+                        </Typography>
+                    </Card>
+                </>
             ) : (
                 <Card sx={{ width: "100%", maxWidth: 600, p: 4, borderRadius: 4, boxShadow: 6, backdropFilter: "blur(12px)" }}>
-                    <LinearProgress variant="determinate" value={((currentPage + 1) / EVENTS.length) * 100} sx={{ mb: 2 }} />
+                    {/* Event Name at the top */}
+                    <Typography
+                        variant="h4"
+                        sx={{
+                            fontFamily: "'Great Vibes', cursive",
+                            textAlign: "center",
+                            mb: 3,
+                            fontWeight: 600,
+                            color: "#4A148C",
+                            textShadow: "2px 2px 6px rgba(0,0,0,0.3)"
+                        }}
+                    >
+                        {currentEvent}
+                    </Typography>
+
+                    <LinearProgress
+                        variant="determinate"
+                        value={((currentPage + 1) / EVENTS.length) * 100}
+                        sx={{ mb: 3 }}
+                    />
 
                     {currentPage === 0 && (
                         <TextField
@@ -151,17 +200,19 @@ export default function WeddingRSVPApp() {
                         />
                     )}
 
-                    <Typography variant="h6" gutterBottom>{currentEvent}</Typography>
-
                     <Stack direction="row" spacing={2} justifyContent="center" sx={{ mb: 3 }}>
                         <Button
                             variant={rsvpData[currentEvent].attending === true ? "contained" : "outlined"}
                             onClick={() => setAttendance(true)}
-                        >Yes</Button>
+                        >
+                            Yes
+                        </Button>
                         <Button
                             variant={rsvpData[currentEvent].attending === false ? "contained" : "outlined"}
                             onClick={() => setAttendance(false)}
-                        >No</Button>
+                        >
+                            No
+                        </Button>
                     </Stack>
 
                     {rsvpData[currentEvent].attending && (
@@ -174,7 +225,9 @@ export default function WeddingRSVPApp() {
                                     onChange={handleGuestCountChange}
                                 >
                                     {[...Array(7)].map((_, i) => (
-                                        <MenuItem key={i} value={i}>{i}</MenuItem>
+                                        <MenuItem key={i} value={i}>
+                                            {i}
+                                        </MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
