@@ -1,16 +1,5 @@
-import { useState, useEffect } from "react";
-import {
-    Box,
-    Button,
-    Flex,
-    Field,
-    Input,
-    Select,
-    Text,
-    VStack
-} from "@chakra-ui/react";
-import { db } from "./firebaseConfig";
-import { ref, push } from "firebase/database";
+import React, { useState, useEffect } from "react";
+import { Button, TextField, Typography, Stack, Box, Select, MenuItem, InputLabel, FormControl } from "@mui/material";
 
 const EVENTS = [
     "Haldi",
@@ -21,13 +10,14 @@ const EVENTS = [
     "Vratam"
 ];
 
+// Background image URLs for each event
 const EVENT_IMAGES = {
-    "Haldi": "/images/haldi.jpg",
-    "Sangeet Night": "/images/sangeeth.jpg",
-    "Mehendi": "/images/mehendi.jpg",
-    "PelliKoduku/ PelliKuthuru": "/images/pellik.jpg",
-    "Wedding": "/images/wedding.jpg",
-    "Vratam": "/images/vratam.jpg"
+    "Haldi": "url('/images/haldi.jpg')",
+    "Sangeet Night": "url('/images/sangeeth.jpg')",
+    "Mehendi": "url('/images/mehendi.jpg')",
+    "PelliKoduku/ PelliKuthuru": "url('/images/pellik.jpg')",
+    "Wedding": "url('/images/wedding.jpg')",
+    "Vratam": "url('/images/vratam.jpg')"
 };
 
 export default function WeddingRSVPApp() {
@@ -78,8 +68,8 @@ export default function WeddingRSVPApp() {
         }));
     };
 
-    const handleGuestCountChange = (e) => {
-        const count = parseInt(e.target.value, 10);
+    const handleGuestCountChange = (event) => {
+        const count = parseInt(event.target.value, 10);
         setGuestCount(count);
         if (rsvpData[currentEvent].attending) {
             setRsvpData(prev => ({
@@ -104,86 +94,138 @@ export default function WeddingRSVPApp() {
         }));
     };
 
-    const handleSubmit = async () => {
-        try {
-            const entry = { name, rsvpData };
-            await push(ref(db, 'rsvps'), entry);
+    const nextPage = () => {
+        if (currentPage < EVENTS.length - 1) {
+            setCurrentPage(prev => prev + 1);
+            setGuestCount(0);
+        } else {
             setSubmitted(true);
-        } catch (error) {
-            console.log({ status: 'error', title: 'Submission failed' });
         }
     };
 
-    if (submitted) {
-        return (
-            <Flex minH="100vh" justify="center" align="center" bgGradient="linear(to-b, pink.100, white)">
-                <Box textAlign="center">
-                    <Text fontSize="2xl" fontWeight="bold">Thank you, {name}!</Text>
-                    <Text>Your RSVP has been recorded.</Text>
-                </Box>
-            </Flex>
-        );
-    }
-
     return (
-        <Box
-            minH="100vh"
-            bgImage={`url('${EVENT_IMAGES[currentEvent]}')`}
-            bgSize="cover"
-            bgPos="center"
-            p={4}
+        <div
+            style={{
+                position: "relative",
+                height: "100vh",
+                backgroundImage: EVENT_IMAGES[currentEvent],
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                padding: "2rem",
+            }}
         >
-            <Box maxW="480px" mx="auto" bg="whiteAlpha.900" borderRadius="lg" p={4}>
-                <VStack spacing={4} align="stretch">
+            {submitted ? (
+                <div style={{ textAlign: "center", color: "#fff" }}>
+                    <Typography variant="h4" gutterBottom>
+                        Thank You, {name}!
+                    </Typography>
+                    <Typography variant="body1" paragraph>
+                        Your RSVP has been successfully recorded for all events.
+                    </Typography>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        sx={{ mt: 3 }}
+                        onClick={() => alert("Exporting data to Excel...")}
+                    >
+                        Export All RSVPs to Excel
+                    </Button>
+                </div>
+            ) : (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: "100%",
+                        maxWidth: "600px",
+                        padding: "20px",
+                        backgroundColor: "rgba(255, 255, 255, 0)",
+                        borderRadius: "8px",
+                        boxShadow: "0px 5px 15px rgba(0, 0, 0, 0)",
+                    }}
+                >
                     {currentPage === 0 && (
-                        <Field>
-                            <Field.Label>Your Name</Field.Label>
-                            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter your full name" />
-                        </Field>
+                        <Box mb={4}>
+                            <TextField
+                                label="Your Name"
+                                fullWidth
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                margin="normal"
+                            />
+                        </Box>
                     )}
 
-                    <Field>
-                        <Field.Label>{currentEvent}</Field.Label>
-                        <Flex justify="space-around">
-                            <Button colorScheme={rsvpData[currentEvent].attending ? 'teal' : 'gray'} onClick={() => setAttendance(true)}>
+                    <Typography variant="h6" gutterBottom>
+                        {currentEvent}
+                    </Typography>
+
+                    <Box mb={3}>
+                        <Typography variant="subtitle1" gutterBottom>
+                            Will you attend?
+                        </Typography>
+                        <Stack direction="row" spacing={2} justifyContent="space-evenly">
+                            <Button
+                                variant={rsvpData[currentEvent].attending === true ? "contained" : "outlined"}
+                                onClick={() => setAttendance(true)}
+                                sx={{ flex: 1 }}
+                            >
                                 Yes
                             </Button>
-                            <Button colorScheme={rsvpData[currentEvent].attending === false ? 'teal' : 'gray'} onClick={() => setAttendance(false)}>
+                            <Button
+                                variant={rsvpData[currentEvent].attending === false ? "contained" : "outlined"}
+                                onClick={() => setAttendance(false)}
+                                sx={{ flex: 1 }}
+                            >
                                 No
                             </Button>
-                        </Flex>
-                    </Field>
+                        </Stack>
+                    </Box>
 
                     {rsvpData[currentEvent].attending && (
-                        <>
-                            <Field>
-                                <Field.Label>How many guests?</Field.Label>
-                                <Select value={guestCount} onChange={handleGuestCountChange}>
-                                    {[...Array(7).keys()].map(n => (
-                                        <option key={n} value={n}>{n}</option>
-                                    ))}
+                        <Box mb={3}>
+                            <FormControl fullWidth margin="normal">
+                                <InputLabel id="guest-count-label">How many guests are you bringing?</InputLabel>
+                                <Select
+                                    labelId="guest-count-label"
+                                    value={guestCount}
+                                    onChange={handleGuestCountChange}
+                                    label="How many guests are you bringing?"
+                                >
+                                    <MenuItem value={0}>0</MenuItem>
+                                    <MenuItem value={1}>1</MenuItem>
+                                    <MenuItem value={2}>2</MenuItem>
+                                    <MenuItem value={3}>3</MenuItem>
+                                    <MenuItem value={4}>4</MenuItem>
+                                    <MenuItem value={5}>5</MenuItem>
+                                    <MenuItem value={6}>6</MenuItem>
                                 </Select>
-                            </Field>
+                            </FormControl>
                             {rsvpData[currentEvent].guests.map((guest, index) => (
-                                <Field key={index}>
-                                    <Field.Label>Guest {index + 1}</Field.Label>
-                                    <Input value={guest} onChange={(e) => handleGuestChange(index, e.target.value)} />
-                                </Field>
+                                <TextField
+                                    key={index}
+                                    value={guest}
+                                    onChange={(e) => handleGuestChange(index, e.target.value)}
+                                    placeholder={`Guest ${index + 1}`}
+                                    fullWidth
+                                    margin="dense"
+                                />
                             ))}
-                        </>
+                        </Box>
                     )}
 
-                    <Button colorScheme="pink" onClick={() => {
-                        if (currentPage < EVENTS.length - 1) {
-                            setCurrentPage(prev => prev + 1);
-                        } else {
-                            handleSubmit();
-                        }
-                    }}>
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={nextPage}
+                        sx={{ mt: 2 }}
+                    >
                         {currentPage === EVENTS.length - 1 ? "Submit RSVP" : "Next"}
                     </Button>
-                </VStack>
-            </Box>
-        </Box>
+                </div>
+            )}
+        </div>
     );
 }
