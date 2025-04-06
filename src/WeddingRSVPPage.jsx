@@ -223,11 +223,11 @@ export default function WeddingRSVPApp() {
             }}
         >
             {showWelcomePage ? (
-                <Card sx={{ p: 4, textAlign: "center", backdropFilter: "blur(8px)", width: "100%", maxWidth: 600 }}>
-                    <Typography variant="h3" sx={{ mb: 3, color: "#4a148c", fontWeight: "bold" }}>
-                        Welcome to Our Vineeth Sucharitha Wedding RSVP
+                <Card sx={{ p: 4, textAlign: "center", backdropFilter: "blur(8px)", width: "100%", maxWidth: 600, backgroundColor: "rgba(255, 255, 255, 0.3)" }}>
+                    <Typography variant="h3" sx={{ mb: 3, fontFamily: "'Great Vibes', cursive", color: "#eee7e7", fontWeight: "bold" }}>
+                        Vineeth Sucharitha's Wedding RSVP
                     </Typography>
-                    <Typography variant="h6" sx={{ mb: 3 }}>
+                    <Typography variant="h6" sx={{ mb: 3, color: "#eee7e7" }}>
                         We're excited to have you with us! Please click below to start your RSVP.
                     </Typography>
                     <Button variant="contained" color="primary" onClick={handleStartRSVP}>
@@ -247,7 +247,7 @@ export default function WeddingRSVPApp() {
                     </Card>
                 </>
             ) : (
-                <Card sx={{ width: "100%", maxWidth: 600, p: 4, borderRadius: 4, boxShadow: 6, backdropFilter: "blur(12px)", backgroundColor: "rgba(255, 255, 255, 0.3)" }}>
+                <Card sx={{ width: "100%", maxWidth: 600, p: 4, borderRadius: 4, boxShadow: 6, backdropFilter: "blur(12px)", backgroundColor: "rgba(255, 255, 255, 0.2)" }}>
                     {/* Event Name at the top */}
                     <Typography
                         variant="h4"
