@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Box, Button, Typography } from "@mui/material";
+import {
+    Box,
+    Button,
+    Heading,
+    Text,
+    VStack,
+} from "@chakra-ui/react";
 import { db } from "./firebaseConfig"; // Import firebase config
 import { collection, getDocs } from "firebase/firestore";
 import * as XLSX from "xlsx";
@@ -43,15 +49,13 @@ export default function ExportPage() {
 
                 allUserData.forEach((entry) => {
                     const data = entry.events[event];
-                    if (data.attending) {
-                        // Count the main user + guests
+                    if (data?.attending) {
                         totalAttendees += 1 + data.guests.length;
-
                         rows.push({
                             User: entry.name,
                             Attending: "Yes",
                             Guests: data.guests.join(", "),
-                            Count: 1 + data.guests.length,  // Main user + guests
+                            Count: 1 + data.guests.length,
                         });
                     } else {
                         rows.push({
@@ -72,21 +76,18 @@ export default function ExportPage() {
             XLSX.writeFile(workbook, `Wedding_RSVP_Data.xlsx`);
         } catch (error) {
             console.error("Error exporting data to Excel:", error);
-            alert("There was an error exporting the data. Please try again.");
         }
     };
 
     return (
-        <Box maxWidth={600} mx="auto" p={3}>
-            <Typography variant="h4" gutterBottom>
-                Export RSVP Data
-            </Typography>
-            <Typography variant="body1" gutterBottom>
-                Click the button below to export all RSVP data to an Excel file.
-            </Typography>
-            <Button variant="outlined" onClick={exportDataToExcel} sx={{ mt: 2 }}>
-                Export to Excel
-            </Button>
+        <Box maxW="600px" mx="auto" p={6}>
+            <VStack spacing={4} align="start">
+                <Heading size="lg">Export RSVP Data</Heading>
+                <Text>Click the button below to export all RSVP data to an Excel file.</Text>
+                <Button colorScheme="blue" onClick={exportDataToExcel} mt={4}>
+                    Export to Excel
+                </Button>
+            </VStack>
         </Box>
     );
 }
