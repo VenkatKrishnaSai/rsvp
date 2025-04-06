@@ -5,11 +5,12 @@ import { collection, getDocs } from "firebase/firestore";
 import * as XLSX from "xlsx";
 
 const EVENTS = [
-    "Mehendi Ceremony",
+    "Haldi",
     "Sangeet Night",
-    "Wedding Ceremony",
-    "Reception Dinner",
-    "Post-Wedding Brunch"
+    "Mehendi",
+    "PelliKoduku/ PelliKuthuru",
+    "Wedding",
+    "Vratam"
 ];
 
 export default function ExportPage() {
