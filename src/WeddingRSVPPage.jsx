@@ -225,7 +225,7 @@ export default function WeddingRSVPApp() {
             }}
         >
         {showWelcomePage ? (
-                <Card sx={{ p: 1, textAlign: "center", backdropFilter: "blur(8px)", width: "100%", maxWidth: 500, backgroundColor: "rgba(255,255,255,0.3)" }}>
+                <Card sx={{ p: 1, textAlign: "center", backdropFilter: "blur(8px)", width: "100%", maxWidth: 500, backgroundColor: "rgba(255,255,255,0.1)" }}>
                     <Typography variant="h3" sx={{ mb: 3, fontFamily: "'Great Vibes', cursive", color: "#34383c", fontWeight: "bold", fontSize: "1.5rem"  }}>
                         Vineeth Sucharitha's Wedding RSVP
                     </Typography>
