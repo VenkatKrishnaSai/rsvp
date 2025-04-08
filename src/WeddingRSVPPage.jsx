@@ -319,13 +319,13 @@ export default function WeddingRSVPApp() {
                     {rsvpData[currentEvent].attending && (
                         <Box>
                             <FormControl fullWidth sx={{ mb: 2 }}>
-                                <InputLabel>Guests</InputLabel>
+                                <InputLabel>Number of guests attending with you</InputLabel>
                                 <Select
                                     value={guestCount}
-                                    label="Guests"
+                                    label="Number of guests attending with you"
                                     onChange={handleGuestCountChange}
                                 >
-                                    {[...Array(7)].map((_, i) => (
+                                    {[...Array(10)].map((_, i) => (
                                         <MenuItem key={i} value={i}>
                                             {i}
                                         </MenuItem>
