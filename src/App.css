@@ -36,19 +36,3 @@
     transform: rotate(360deg);
   }
 }
-
-/* Global CSS to prevent scrollbars */
-body, html {
-  margin: 0;
-  padding: 0;
-  overflow: hidden; /* Hide scrollbars */
-  height: 100%;
-  width: 100%;
-}
-
-/* Apply to ensure the background image fits the page */
-body {
-  background-size: cover;
-  background-position: center;
-}
-

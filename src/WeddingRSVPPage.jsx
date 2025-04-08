@@ -213,9 +213,7 @@ export default function WeddingRSVPApp() {
                 justifyContent: "center",
                 alignItems: "center",
                 px: 2,
-                py: 0,
-                overflow: 'hidden', // Prevents overflow which could create a scrollbar
-                width: '100%', // Ensures Box takes full width
+                py: 4
             }}
         >
         {showWelcomePage ? (
