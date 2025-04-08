@@ -192,12 +192,6 @@ export default function WeddingRSVPApp() {
             return;
         }
 
-        // If attending, make sure all guest names are filled
-        if (currentData.attending && currentData.guests.some(name => name.trim() === "")) {
-            alert("Please enter names for all guests.");
-            return;
-        }
-
         if (currentPage < EVENTS.length - 1) {
             setCurrentPage(prev => prev + 1);
             setGuestCount(0);
